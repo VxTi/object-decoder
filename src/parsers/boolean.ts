@@ -1,4 +1,4 @@
-import { type JSONSchema4 } from 'json-schema';
+import { type JSONSchema7 } from 'json-schema';
 import { Decoder } from './common';
 
 export class $Boolean extends Decoder<boolean> {
@@ -22,7 +22,7 @@ export class $Boolean extends Decoder<boolean> {
     return this.internalIdentifier;
   }
 
-  override toJSONSchema(): JSONSchema4 {
+  override toJSONSchema(): JSONSchema7 {
     return {
       type: 'boolean',
     };

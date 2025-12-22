@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { literal } from './literal';
 import { number } from './number';
 import { object } from './object';
 import { optional } from './optional';
@@ -94,6 +95,7 @@ describe('object', () => {
 
   it('should produce a proper json schema object', () => {
     const decoder = object({
+      test: literal('hello'),
       firstField: string({ pattern: /test/g }),
       somethingElse: number(),
       maybe: optional(string()),
@@ -145,7 +147,7 @@ describe('object', () => {
             "type": "object",
           },
           "firstField": {
-            "pattern": "/test/g",
+            "pattern": "test",
             "type": "string",
           },
           "maybe": {
@@ -166,8 +168,13 @@ describe('object', () => {
           "somethingElse": {
             "type": "number",
           },
+          "test": {
+            "const": "hello",
+            "type": "string",
+          },
         },
         "required": [
+          "test",
           "firstField",
           "somethingElse",
           "cars",

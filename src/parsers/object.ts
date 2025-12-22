@@ -1,4 +1,4 @@
-import { type JSONSchema4 } from 'json-schema';
+import { type JSONSchema7 } from 'json-schema';
 import { type Prettify } from '../utils';
 import { Decoder, type Infer } from './common';
 import { $Optional } from './optional';
@@ -26,14 +26,15 @@ export class $Object<TFieldDecoders extends FieldDecoder> extends Decoder<
 
   override parse(input: unknown): InferFieldDecoder<TFieldDecoders> {
     const obj = this.extractObject(input);
-    const result: object = {};
+    const result: Partial<InferFieldDecoder<TFieldDecoders>> = {};
 
     for (const [key, validator] of Object.entries(this.fieldDecoders)) {
       if (!(key in obj) && !(validator instanceof $Optional)) {
         throw new Error(`"Missing required field: "${key}"`);
       }
-      // eslint-disable-next-line
-      // @ts-ignore
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       result[key] = validator.parse(obj[key]);
     }
@@ -79,7 +80,7 @@ export class $Object<TFieldDecoders extends FieldDecoder> extends Decoder<
       .join(', ')} }`;
   }
 
-  override toJSONSchema(): JSONSchema4 {
+  override toJSONSchema(): JSONSchema7 {
     const requiredFields: string[] = Object.entries(this.fieldDecoders)
       .filter(([, decoder]) => !(decoder instanceof $Optional))
       .map(([field]) => field);

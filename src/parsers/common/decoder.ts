@@ -1,4 +1,4 @@
-import { type JSONSchema4 } from 'json-schema';
+import { type JSONSchema7 } from 'json-schema';
 
 export interface SuccessResult<TOutput> {
   success: true;
@@ -45,7 +45,7 @@ export abstract class Decoder<TOutput> {
    * }
    * ```
    */
-  abstract toJSONSchema(): JSONSchema4;
+  abstract toJSONSchema(): JSONSchema7;
 
   /**
    * Returns a string representation of the decoder.

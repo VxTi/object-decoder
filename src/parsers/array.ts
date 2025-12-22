@@ -1,4 +1,4 @@
-import { type JSONSchema4 } from 'json-schema';
+import { type JSONSchema7 } from 'json-schema';
 import { Decoder, type InferDecoderOutput } from './common';
 
 export class $Array<
@@ -46,7 +46,7 @@ export class $Array<
     return `${this.internalIdentifier} [ ${this.decoder.toString()} ]`;
   }
 
-  override toJSONSchema(): JSONSchema4 {
+  override toJSONSchema(): JSONSchema7 {
     return {
       type: 'array',
       items: this.decoder.toJSONSchema(),

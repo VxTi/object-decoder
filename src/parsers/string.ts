@@ -1,10 +1,12 @@
-import { type JSONSchema4 } from 'json-schema';
-import { Decoder } from './common/decoder';
+import { type JSONSchema7 } from 'json-schema';
+import { Decoder } from './common';
 
 export interface StringDecoderOptions {
   pattern?: RegExp;
   minLength?: number;
   maxLength?: number;
+
+  parser?: (input: unknown) => string;
 }
 
 export class $String extends Decoder<string> {
@@ -26,21 +28,23 @@ export class $String extends Decoder<string> {
       throw new Error(`Expected string, got ${typeof input}`);
     }
 
-    if (this.options?.pattern && !this.options.pattern.test(input)) {
+    const { pattern, maxLength, minLength } = this.options ?? {};
+
+    if (pattern && !pattern.test(input)) {
       throw new Error(
-        `Input string does not match pattern "/${this.options.pattern.source}/${this.options.pattern.flags}", got "${input}"`
+        `Input string does not match pattern "/${pattern.source}/${pattern.flags}", got "${input}"`
       );
     }
 
-    if (this.options?.minLength && input.length < this.options.minLength) {
+    if (minLength && input.length < minLength) {
       throw new Error(
-        `Input string is shorter than minimum length ${this.options.minLength}, got "${input}"`
+        `Input string is shorter than minimum length ${minLength}, got "${input}"`
       );
     }
 
-    if (this.options?.maxLength && input.length > this.options.maxLength) {
+    if (maxLength && input.length > maxLength) {
       throw new Error(
-        `Input string is longer than maximum length ${this.options.maxLength}, got "${input}"`
+        `Input string is longer than maximum length ${maxLength}, got "${input}"`
       );
     }
 
@@ -51,13 +55,13 @@ export class $String extends Decoder<string> {
     return this.internalIdentifier;
   }
 
-  override toJSONSchema(): JSONSchema4 {
+  override toJSONSchema(): JSONSchema7 {
     const { minLength, maxLength, pattern } = this.options ?? {};
     return {
       type: 'string',
       ...(minLength ? { minLength } : {}),
       ...(maxLength ? { maxLength } : {}),
-      ...(pattern ? { pattern: `/${pattern.source}/${pattern.flags}` } : {}),
+      ...(pattern ? { pattern: pattern.source } : {}),
     };
   }
 }

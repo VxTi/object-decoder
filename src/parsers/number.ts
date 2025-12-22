@@ -1,4 +1,4 @@
-import { type JSONSchema4 } from 'json-schema';
+import { type JSONSchema7 } from 'json-schema';
 import { Decoder } from './common';
 
 export interface NumberDecoderOptions {
@@ -51,7 +51,7 @@ export class $Number extends Decoder<number> {
     return this.internalIdentifier;
   }
 
-  override toJSONSchema(): JSONSchema4 {
+  override toJSONSchema(): JSONSchema7 {
     const { min, max } = this.options ?? {};
 
     return {
