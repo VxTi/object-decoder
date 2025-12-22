@@ -1,13 +1,15 @@
 {
   "name": "object-parser",
   "version": "1.0.0",
+  "type": "module",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "check:types": "tsc --noEmit",
     "lint": "eslint --fix \"./src/**/*.ts\" --cache --max-warnings 0",
-    "test": "vitest run"
+    "test": "vitest run",
+    "sanity": "npm run lint && npm run check:types && npm run test"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",

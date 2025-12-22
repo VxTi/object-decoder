@@ -1,4 +1,4 @@
-import { Decoder, type InferDecoderOutput } from './decoder';
+import { Decoder } from './decoder';
 
 export class ArrayDecoder<
   TReturnType,
@@ -43,8 +43,9 @@ export class ArrayDecoder<
   }
 }
 
-export function array<TDecoder extends Decoder<any>>(
-  decoder: TDecoder
-): ArrayDecoder<InferDecoderOutput<TDecoder>, TDecoder> {
+export function array<
+  TElementType,
+  TElementDecoder extends Decoder<TElementType>,
+>(decoder: TElementDecoder): ArrayDecoder<TElementType, TElementDecoder> {
   return new ArrayDecoder(decoder);
 }

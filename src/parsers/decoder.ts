@@ -1,16 +1,14 @@
-export interface DecoderSuccessResult<TOutput> {
+export interface SuccessResult<TOutput> {
   success: true;
   value: TOutput;
 }
 
-export interface DecoderFailureResult {
+export interface ErrorResult {
   success: false;
   error: string;
 }
 
-export type DecoderResult<TOutput> =
-  | DecoderSuccessResult<TOutput>
-  | DecoderFailureResult;
+export type SafeParseResult<TOutput> = SuccessResult<TOutput> | ErrorResult;
 
 export type InferDecoderOutput<T> = T extends Decoder<infer F> ? F : never;
 
@@ -20,7 +18,7 @@ export abstract class Decoder<TOutput> {
   /**
    * Safely parses input and returns a DecoderResult.
    */
-  safeParse(input: unknown): DecoderResult<TOutput> {
+  safeParse(input: unknown): SafeParseResult<TOutput> {
     try {
       const parsed = this.parse(input);
       return { success: true, value: parsed };

@@ -1,1 +1,1 @@
-export * from './decoders';
+export * from './parsers';
