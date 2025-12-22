@@ -5,6 +5,8 @@ import unusedImports from 'eslint-plugin-unused-imports';
 import tseslint from 'typescript-eslint';
 import prettierConfig from './prettier.config';
 
+const cwd = process.cwd();
+
 export default defineConfig([
   // TypeScript recommendations
   ...tseslint.configs.strictTypeChecked,
@@ -15,7 +17,7 @@ export default defineConfig([
       parser: tseslint.parser,
       parserOptions: {
         project: './tsconfig.json',
-        tsconfigRootDir: process.cwd(),
+        tsconfigRootDir: cwd,
       },
     },
   },
