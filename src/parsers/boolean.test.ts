@@ -14,4 +14,10 @@ describe('boolean', () => {
       'Expected boolean, got "Non boolean"'
     );
   });
+
+  it('should stringify boolean decoders', () => {
+    const decoder = boolean();
+
+    expect(decoder.toString()).toMatchInlineSnapshot(`"boolean"`);
+  });
 });

@@ -1,15 +1,18 @@
 {
-  "name": "object-parser",
+  "name": "object-decoder",
   "version": "1.0.0",
   "type": "module",
-  "description": "",
+  "description": "A TypeScript object decoder library",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "clean": "rm -rf ./dist",
+    "build": "tsc --p ./tsconfig.release.json",
     "check:types": "tsc --noEmit",
     "lint": "eslint --fix \"./src/**/*.ts\" --cache --max-warnings 0",
     "test": "vitest run",
-    "sanity": "npm run lint && npm run check:types && npm run test"
+    "sanity": "npm run lint && npm run check:types && npm run test",
+    "prepublishOnly": "npm run clean; npm run build"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",

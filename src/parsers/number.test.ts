@@ -26,4 +26,10 @@ describe('number', () => {
     expect(model.parse(2)).toEqual(2);
     expect(model.parse(3)).toEqual(3);
   });
+
+  it('should stringify number decoders', () => {
+    const decoder = number();
+
+    expect(decoder.toString()).toMatchInlineSnapshot(`"number"`);
+  });
 });

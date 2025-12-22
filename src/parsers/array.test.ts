@@ -27,4 +27,10 @@ describe('array decoding', () => {
     expect(model.parse(null)).toBeUndefined();
     expect(model.parse([1, 2, 3])).toEqual([1, 2, 3]);
   });
+
+  it('should stringify array decoders', () => {
+    const decoder = array(number());
+
+    expect(decoder.toString()).toMatchInlineSnapshot(`"array [ number ]"`);
+  });
 });

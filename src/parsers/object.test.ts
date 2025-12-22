@@ -76,4 +76,17 @@ describe('object', () => {
 
     expect(model.parse(input)).toEqual({});
   });
+
+  it('should stringify object decoders', () => {
+    const decoder = object({
+      test: string(),
+      obj: object({
+        nested: string(),
+      }),
+    });
+
+    expect(decoder.toString()).toMatchInlineSnapshot(
+      `"object { test [ string ], obj [ object { nested [ string ] } ] }"`
+    );
+  });
 });

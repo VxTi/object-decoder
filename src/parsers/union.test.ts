@@ -32,6 +32,7 @@ const model = object({
     }),*/
   ]),
 });
+
 const unionModel = union([string(), number()]);
 
-type Something = Infer<typeof unionModel>;
+type Something = Infer<typeof model>;

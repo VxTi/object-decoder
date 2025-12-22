@@ -70,7 +70,7 @@ export class $Object<TFieldDecoders extends FieldDecoder> extends Decoder<
 
   toString(): string {
     return `${this.internalIdentifier} { ${Object.entries(this.fieldDecoders)
-      .map(([field, decoder]) => `${field}: ${decoder.toString()}`)
+      .map(([field, decoder]) => `${field} [ ${decoder.toString()} ]`)
       .join(', ')} }`;
   }
 }
