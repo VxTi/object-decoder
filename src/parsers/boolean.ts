@@ -1,6 +1,6 @@
-import { Decoder } from './decoder';
+import { $Decoder } from './decoder';
 
-export class BooleanValidator extends Decoder<boolean> {
+export class $Boolean extends $Decoder<boolean> {
   parse(input: unknown): boolean {
     if (typeof input === 'boolean') return input;
 
@@ -18,6 +18,6 @@ export class BooleanValidator extends Decoder<boolean> {
   }
 }
 
-export function boolean(): BooleanValidator {
-  return new BooleanValidator();
+export function boolean(): $Boolean {
+  return new $Boolean('boolean');
 }

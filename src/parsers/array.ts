@@ -1,14 +1,13 @@
-import { Decoder } from './decoder';
+import { $Decoder, type Infer$DecoderOutput } from './decoder';
 
-export class ArrayDecoder<
-  TReturnType,
-  TDecoder extends Decoder<TReturnType>,
-> extends Decoder<TReturnType[]> {
+export class $Array<
+  TDecoder extends $Decoder<Infer$DecoderOutput<TDecoder>>,
+> extends $Decoder<Infer$DecoderOutput<TDecoder>[]> {
   constructor(readonly decoder: TDecoder) {
-    super();
+    super('array');
   }
 
-  parse(input: unknown): TReturnType[] {
+  parse(input: unknown): Infer$DecoderOutput<TDecoder>[] {
     const array: unknown[] = this.tryExtractArray(input);
 
     return array.map(item => this.decoder.parse(item));
@@ -43,9 +42,8 @@ export class ArrayDecoder<
   }
 }
 
-export function array<
-  TElementType,
-  TElementDecoder extends Decoder<TElementType>,
->(decoder: TElementDecoder): ArrayDecoder<TElementType, TElementDecoder> {
-  return new ArrayDecoder(decoder);
+export function array<TDecoder extends $Decoder<Infer$DecoderOutput<TDecoder>>>(
+  decoder: TDecoder
+): $Array<TDecoder> {
+  return new $Array(decoder);
 }

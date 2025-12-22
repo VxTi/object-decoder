@@ -10,9 +10,11 @@ export interface ErrorResult {
 
 export type SafeParseResult<TOutput> = SuccessResult<TOutput> | ErrorResult;
 
-export type InferDecoderOutput<T> = T extends Decoder<infer F> ? F : never;
+export type Infer$DecoderOutput<T> = T extends $Decoder<infer F> ? F : never;
 
-export abstract class Decoder<TOutput> {
+export abstract class $Decoder<TOutput> {
+  constructor(readonly internalType: string) {}
+
   abstract parse(input: unknown): TOutput;
 
   /**

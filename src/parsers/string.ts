@@ -1,4 +1,4 @@
-import { Decoder } from './decoder';
+import { $Decoder } from './decoder';
 
 export interface StringDecoderOptions {
   pattern?: RegExp;
@@ -6,9 +6,9 @@ export interface StringDecoderOptions {
   maxLength?: number;
 }
 
-export class StringDecoder extends Decoder<string> {
+export class $String extends $Decoder<string> {
   constructor(readonly options?: StringDecoderOptions) {
-    super();
+    super('string');
     if (!options) return;
 
     if (
@@ -47,6 +47,6 @@ export class StringDecoder extends Decoder<string> {
   }
 }
 
-export function string(options?: StringDecoderOptions): StringDecoder {
-  return new StringDecoder(options);
+export function string(options?: StringDecoderOptions): $String {
+  return new $String(options);
 }

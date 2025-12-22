@@ -1,13 +1,13 @@
-import { Decoder } from './decoder';
+import { $Decoder } from './decoder';
 
 export interface NumberDecoderOptions {
   min?: number;
   max?: number;
 }
 
-export class NumberDecoder extends Decoder<number> {
+export class $Number extends $Decoder<number> {
   constructor(readonly options?: NumberDecoderOptions) {
-    super();
+    super('number');
   }
 
   parse(input: unknown): number {
@@ -47,6 +47,6 @@ export class NumberDecoder extends Decoder<number> {
   }
 }
 
-export function number(options?: NumberDecoderOptions): NumberDecoder {
-  return new NumberDecoder(options);
+export function number(options?: NumberDecoderOptions): $Number {
+  return new $Number(options);
 }

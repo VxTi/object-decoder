@@ -1,8 +1,6 @@
-import { type BooleanValidator } from './boolean';
-import { type NumberDecoder } from './number';
-import { type MaybeOptionalDecoder } from './optional';
-import { type StringDecoder } from './string';
+import { type $Boolean } from './boolean';
+import { type $Number } from './number';
+import { type Maybe$Optional } from './optional';
+import { type $String } from './string';
 
-export type PrimitiveDecoder = MaybeOptionalDecoder<
-  StringDecoder | BooleanValidator | NumberDecoder
->;
+export type $Primitive = Maybe$Optional<$String | $Boolean | $Number>;

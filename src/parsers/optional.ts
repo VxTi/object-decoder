@@ -1,26 +1,24 @@
-import { Decoder, type InferDecoderOutput } from './decoder';
+import { $Decoder, type Infer$DecoderOutput } from './decoder';
 
-export type MaybeOptionalDecoder<T> =
-  T extends Decoder<infer F> ? Decoder<F> | OptionalDecoder<F, Decoder<F>>
-  : never;
+export type Maybe$Optional<T> =
+  T extends $Decoder<infer F> ? $Decoder<F> | $Optional<$Decoder<F>> : never;
 
-export class OptionalDecoder<
-  TReturnType,
-  TDecoder extends Decoder<TReturnType>,
-> extends Decoder<TReturnType | undefined> {
+export class $Optional<
+  TDecoder extends $Decoder<Infer$DecoderOutput<TDecoder>>,
+> extends $Decoder<Infer$DecoderOutput<TDecoder> | undefined> {
   constructor(readonly decoder: TDecoder) {
-    super();
+    super('optional');
   }
 
-  parse(input: unknown): TReturnType | undefined {
+  parse(input: unknown): Infer$DecoderOutput<TDecoder> | undefined {
     if (!input) return;
 
-    return this.decoder.parse(input) as InferDecoderOutput<TDecoder>;
+    return this.decoder.parse(input);
   }
 }
 
-export function optional<TReturnType, TDecoder extends Decoder<TReturnType>>(
-  decoder: TDecoder
-): OptionalDecoder<TReturnType, TDecoder> {
-  return new OptionalDecoder(decoder);
+export function optional<
+  TDecoder extends $Decoder<Infer$DecoderOutput<TDecoder>>,
+>(decoder: TDecoder): $Optional<TDecoder> {
+  return new $Optional(decoder);
 }
