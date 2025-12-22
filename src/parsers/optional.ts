@@ -1,8 +1,5 @@
 import { Decoder, type Infer$DecoderOutput } from './common';
 
-export type Maybe$Optional<T> =
-  T extends Decoder<infer F> ? Decoder<F> | $Optional<Decoder<F>> : never;
-
 export class $Optional<
   TDecoder extends Decoder<Infer$DecoderOutput<TDecoder>>,
 > extends Decoder<Infer$DecoderOutput<TDecoder> | undefined> {

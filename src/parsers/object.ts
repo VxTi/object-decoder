@@ -1,16 +1,20 @@
 import { type Prettify } from '../utils';
-import { Decoder, type Infer$DecoderOutput } from './common';
-import { type Maybe$Optional, $Optional } from './optional';
+import { Decoder, type Infer } from './common';
+import { $Optional } from './optional';
 
 export interface ObjectDecoderOptions {
   disallowUnknownFields?: boolean;
 }
 
 // eslint-disable-next-line
-type FieldDecoder = Record<string, Maybe$Optional<Decoder<any>>>;
+type FieldDecoder = Record<string, Decoder<any>>;
+
+type InferFieldDecoder<TFieldDecoders extends FieldDecoder> = {
+  [K in keyof TFieldDecoders]: Infer<TFieldDecoders[K]>;
+} & {};
 
 export class $Object<TFieldDecoders extends FieldDecoder> extends Decoder<
-  Infer$DecoderOutput<TFieldDecoders>
+  InferFieldDecoder<TFieldDecoders>
 > {
   constructor(
     readonly fieldDecoders: TFieldDecoders,
@@ -19,7 +23,7 @@ export class $Object<TFieldDecoders extends FieldDecoder> extends Decoder<
     super('object');
   }
 
-  parse(input: unknown): Infer$DecoderOutput<TFieldDecoders> {
+  parse(input: unknown): InferFieldDecoder<TFieldDecoders> {
     const obj = this.tryParseJson(input);
     const result: object = {};
 
@@ -42,7 +46,7 @@ export class $Object<TFieldDecoders extends FieldDecoder> extends Decoder<
       }
     }
 
-    return result as Infer$DecoderOutput<TFieldDecoders>;
+    return result as InferFieldDecoder<TFieldDecoders>;
   }
 
   private tryParseJson(input: unknown): object {

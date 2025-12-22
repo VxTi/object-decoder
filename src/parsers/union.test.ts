@@ -1,7 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { type Infer } from './common';
 import { number } from './number';
-import { object } from './object';
 import { string } from './string';
 import { union } from './union';
 
@@ -22,17 +20,3 @@ describe('union parsing', () => {
     );
   });
 });
-
-const model = object({
-  test: union([
-    string(),
-    number(),
-    /*object({
-      something: boolean(),
-    }),*/
-  ]),
-});
-
-const unionModel = union([string(), number()]);
-
-type Something = Infer<typeof model>;
