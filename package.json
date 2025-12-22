@@ -1,10 +1,22 @@
 {
   "name": "object-decoder",
-  "version": "1.0.0",
-  "type": "module",
   "description": "A TypeScript object decoder library",
+  "author": "Luca Warmenhoven",
+  "type": "module",
+  "private": false,
+  "version": "1.0.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "scripts": {
     "clean": "rm -rf ./dist",
     "build": "tsc --p ./tsconfig.release.json",
@@ -30,7 +42,6 @@
     "typescript-eslint": "^8.50.0",
     "vitest": "^4.0.16"
   },
-  "private": true,
   "dependencies": {
     "@types/json-schema": "^7.0.15"
   }
