@@ -1,12 +1,12 @@
-import { $Decoder, type Infer$DecoderOutput } from './decoder';
+import { Decoder, type Infer$DecoderOutput } from './common';
 
 export type Maybe$Optional<T> =
-  T extends $Decoder<infer F> ? $Decoder<F> | $Optional<$Decoder<F>> : never;
+  T extends Decoder<infer F> ? Decoder<F> | $Optional<Decoder<F>> : never;
 
 export class $Optional<
-  TDecoder extends $Decoder<Infer$DecoderOutput<TDecoder>>,
-> extends $Decoder<Infer$DecoderOutput<TDecoder> | undefined> {
-  constructor(readonly decoder: TDecoder) {
+  TDecoder extends Decoder<Infer$DecoderOutput<TDecoder>>,
+> extends Decoder<Infer$DecoderOutput<TDecoder> | undefined> {
+  constructor(private readonly decoder: TDecoder) {
     super('optional');
   }
 
@@ -15,10 +15,14 @@ export class $Optional<
 
     return this.decoder.parse(input);
   }
+
+  toString(): string {
+    return `${this.internalIdentifier} [ ${this.decoder.toString()} ]`;
+  }
 }
 
 export function optional<
-  TDecoder extends $Decoder<Infer$DecoderOutput<TDecoder>>,
+  TDecoder extends Decoder<Infer$DecoderOutput<TDecoder>>,
 >(decoder: TDecoder): $Optional<TDecoder> {
-  return new $Optional(decoder);
+  return new $Optional<TDecoder>(decoder);
 }

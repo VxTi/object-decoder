@@ -1,11 +1,11 @@
-import { $Decoder } from './decoder';
+import { Decoder } from './common';
 
 export interface NumberDecoderOptions {
   min?: number;
   max?: number;
 }
 
-export class $Number extends $Decoder<number> {
+export class $Number extends Decoder<number> {
   constructor(readonly options?: NumberDecoderOptions) {
     super('number');
   }
@@ -44,6 +44,10 @@ export class $Number extends $Decoder<number> {
     }
 
     return number;
+  }
+
+  toString(): string {
+    return this.internalIdentifier;
   }
 }
 

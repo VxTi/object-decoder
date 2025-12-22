@@ -1,4 +1,4 @@
-import { $Decoder } from './decoder';
+import { Decoder } from './common/decoder';
 
 export interface StringDecoderOptions {
   pattern?: RegExp;
@@ -6,7 +6,7 @@ export interface StringDecoderOptions {
   maxLength?: number;
 }
 
-export class $String extends $Decoder<string> {
+export class $String extends Decoder<string> {
   constructor(readonly options?: StringDecoderOptions) {
     super('string');
     if (!options) return;
@@ -44,6 +44,10 @@ export class $String extends $Decoder<string> {
     }
 
     return input;
+  }
+
+  toString(): string {
+    return this.internalIdentifier;
   }
 }
 

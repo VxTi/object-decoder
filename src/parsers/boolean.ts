@@ -1,6 +1,6 @@
-import { $Decoder } from './decoder';
+import { Decoder } from './common';
 
-export class $Boolean extends $Decoder<boolean> {
+export class $Boolean extends Decoder<boolean> {
   parse(input: unknown): boolean {
     if (typeof input === 'boolean') return input;
 
@@ -15,6 +15,10 @@ export class $Boolean extends $Decoder<boolean> {
     }
 
     return lowercase === 'true';
+  }
+
+  toString(): string {
+    return this.internalIdentifier;
   }
 }
 

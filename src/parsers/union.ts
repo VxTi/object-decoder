@@ -1,8 +1,8 @@
-import { $Decoder, type Infer$DecoderOutput } from './decoder';
+import { Decoder, type Infer$DecoderOutput } from './common';
 
 export class $Union<
-  TDecoders extends $Decoder<Infer$DecoderOutput<TDecoders>>,
-> extends $Decoder<Infer$DecoderOutput<TDecoders>> {
+  TDecoders extends Decoder<Infer$DecoderOutput<TDecoders>>,
+> extends Decoder<Infer$DecoderOutput<TDecoders>> {
   constructor(readonly decoders: TDecoders[]) {
     super('union');
   }
@@ -18,10 +18,16 @@ export class $Union<
 
     throw new Error(`Failed to parse union, got: "${typeof input}"`);
   }
+
+  toString(): string {
+    return `${this.internalIdentifier} [ ${this.decoders
+      .map(decoder => decoder.toString())
+      .join(' | ')} ]`;
+  }
 }
 
 export function union<
-  TDecoders extends $Decoder<Infer$DecoderOutput<TDecoders>>,
+  TDecoders extends Decoder<Infer$DecoderOutput<TDecoders>>,
 >(decoders: TDecoders[]): $Union<TDecoders> {
   return new $Union<TDecoders>(decoders);
 }

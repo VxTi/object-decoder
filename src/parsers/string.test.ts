@@ -23,4 +23,8 @@ describe('string', () => {
       'Input string is shorter than minimum length 5, got "test"'
     );
   });
+
+  it('should stringify string decoders', () => {
+    expect(string().toString()).toEqual('string');
+  });
 });

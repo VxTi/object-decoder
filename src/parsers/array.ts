@@ -1,8 +1,8 @@
-import { $Decoder, type Infer$DecoderOutput } from './decoder';
+import { Decoder, type Infer$DecoderOutput } from './common';
 
 export class $Array<
-  TDecoder extends $Decoder<Infer$DecoderOutput<TDecoder>>,
-> extends $Decoder<Infer$DecoderOutput<TDecoder>[]> {
+  TDecoder extends Decoder<Infer$DecoderOutput<TDecoder>>,
+> extends Decoder<Infer$DecoderOutput<TDecoder>[]> {
   constructor(readonly decoder: TDecoder) {
     super('array');
   }
@@ -40,9 +40,13 @@ export class $Array<
       });
     }
   }
+
+  toString(): string {
+    return `${this.internalIdentifier} [ ${this.decoder.toString()} ]`;
+  }
 }
 
-export function array<TDecoder extends $Decoder<Infer$DecoderOutput<TDecoder>>>(
+export function array<TDecoder extends Decoder<Infer$DecoderOutput<TDecoder>>>(
   decoder: TDecoder
 ): $Array<TDecoder> {
   return new $Array(decoder);

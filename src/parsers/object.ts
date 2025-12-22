@@ -1,16 +1,15 @@
 import { type Prettify } from '../utils';
-import { $Decoder, type Infer$DecoderOutput } from './decoder';
+import { Decoder, type Infer$DecoderOutput } from './common';
 import { type Maybe$Optional, $Optional } from './optional';
-import { type $Primitive } from './primitives';
 
 export interface ObjectDecoderOptions {
   disallowUnknownFields?: boolean;
 }
 
 // eslint-disable-next-line
-type FieldDecoder = Record<string, Maybe$Optional<$Primitive | $Object<any>>>;
+type FieldDecoder = Record<string, Maybe$Optional<Decoder<any>>>;
 
-export class $Object<TFieldDecoders extends FieldDecoder> extends $Decoder<
+export class $Object<TFieldDecoders extends FieldDecoder> extends Decoder<
   Infer$DecoderOutput<TFieldDecoders>
 > {
   constructor(
@@ -30,7 +29,7 @@ export class $Object<TFieldDecoders extends FieldDecoder> extends $Decoder<
       }
       // eslint-disable-next-line
       // @ts-ignore
-
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       result[key] = validator.parse(obj[key]);
     }
 
@@ -67,6 +66,12 @@ export class $Object<TFieldDecoders extends FieldDecoder> extends $Decoder<
       Object.assign({}, this.fieldDecoders, other.fieldDecoders),
       this.options
     );
+  }
+
+  toString(): string {
+    return `${this.internalIdentifier} { ${Object.entries(this.fieldDecoders)
+      .map(([field, decoder]) => `${field}: ${decoder.toString()}`)
+      .join(', ')} }`;
   }
 }
 
