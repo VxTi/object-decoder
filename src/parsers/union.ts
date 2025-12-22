@@ -1,13 +1,14 @@
-import { Decoder, type Infer$DecoderOutput } from './common';
+import { type JSONSchema4 } from 'json-schema';
+import { Decoder, type InferDecoderOutput } from './common';
 
 export class $Union<
-  TDecoders extends Decoder<Infer$DecoderOutput<TDecoders>>,
-> extends Decoder<Infer$DecoderOutput<TDecoders>> {
+  TDecoders extends Decoder<InferDecoderOutput<TDecoders>>,
+> extends Decoder<InferDecoderOutput<TDecoders>> {
   constructor(readonly decoders: TDecoders[]) {
     super('union');
   }
 
-  parse(input: unknown): Infer$DecoderOutput<TDecoders> {
+  override parse(input: unknown): InferDecoderOutput<TDecoders> {
     for (const decoder of this.decoders) {
       try {
         return decoder.parse(input);
@@ -19,15 +20,22 @@ export class $Union<
     throw new Error(`Failed to parse union, got: "${typeof input}"`);
   }
 
-  toString(): string {
+  override toString(): string {
     return `${this.internalIdentifier} [ ${this.decoders
       .map(decoder => decoder.toString())
       .join(' | ')} ]`;
   }
+
+  override toJSONSchema(): JSONSchema4 {
+    return {
+      type: 'object',
+      oneOf: this.decoders.map(decoder => decoder.toJSONSchema()),
+    };
+  }
 }
 
-export function union<
-  TDecoders extends Decoder<Infer$DecoderOutput<TDecoders>>,
->(decoders: TDecoders[]): $Union<TDecoders> {
+export function union<TDecoders extends Decoder<InferDecoderOutput<TDecoders>>>(
+  decoders: TDecoders[]
+): $Union<TDecoders> {
   return new $Union<TDecoders>(decoders);
 }

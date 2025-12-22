@@ -1,3 +1,5 @@
+import { type JSONSchema4 } from 'json-schema';
+
 export interface SuccessResult<TOutput> {
   success: true;
   value: TOutput;
@@ -10,7 +12,7 @@ export interface ErrorResult {
 
 export type SafeParseResult<TOutput> = SuccessResult<TOutput> | ErrorResult;
 
-export type Infer$DecoderOutput<T> = T extends Decoder<infer F> ? F : never;
+export type InferDecoderOutput<T> = T extends Decoder<infer F> ? F : never;
 
 export abstract class Decoder<TOutput> {
   constructor(protected readonly internalIdentifier: string) {}
@@ -32,5 +34,21 @@ export abstract class Decoder<TOutput> {
     }
   }
 
+  /**
+   * Returns a JSON Schema representation of the decoder.
+   *
+   * An example of the output that can be produced:
+   * @example
+   * ```json
+   * {
+   *   "type": "string"
+   * }
+   * ```
+   */
+  abstract toJSONSchema(): JSONSchema4;
+
+  /**
+   * Returns a string representation of the decoder.
+   */
   abstract toString(): string;
 }

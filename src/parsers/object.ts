@@ -1,3 +1,4 @@
+import { type JSONSchema4 } from 'json-schema';
 import { type Prettify } from '../utils';
 import { Decoder, type Infer } from './common';
 import { $Optional } from './optional';
@@ -23,8 +24,8 @@ export class $Object<TFieldDecoders extends FieldDecoder> extends Decoder<
     super('object');
   }
 
-  parse(input: unknown): InferFieldDecoder<TFieldDecoders> {
-    const obj = this.tryParseJson(input);
+  override parse(input: unknown): InferFieldDecoder<TFieldDecoders> {
+    const obj = this.extractObject(input);
     const result: object = {};
 
     for (const [key, validator] of Object.entries(this.fieldDecoders)) {
@@ -49,7 +50,7 @@ export class $Object<TFieldDecoders extends FieldDecoder> extends Decoder<
     return result as InferFieldDecoder<TFieldDecoders>;
   }
 
-  private tryParseJson(input: unknown): object {
+  private extractObject(input: unknown): object {
     if (!input) {
       throw new Error(`Expected object with key, got ${typeof input}`);
     }
@@ -72,10 +73,28 @@ export class $Object<TFieldDecoders extends FieldDecoder> extends Decoder<
     );
   }
 
-  toString(): string {
+  override toString(): string {
     return `${this.internalIdentifier} { ${Object.entries(this.fieldDecoders)
       .map(([field, decoder]) => `${field} [ ${decoder.toString()} ]`)
       .join(', ')} }`;
+  }
+
+  override toJSONSchema(): JSONSchema4 {
+    const requiredFields: string[] = Object.entries(this.fieldDecoders)
+      .filter(([, decoder]) => !(decoder instanceof $Optional))
+      .map(([field]) => field);
+
+    return {
+      type: 'object',
+      $schema: 'https://json-schema.org/draft/2020-12/schema',
+      properties: Object.fromEntries(
+        Object.entries(this.fieldDecoders).map(([field, decoder]) => [
+          field,
+          decoder.toJSONSchema(),
+        ])
+      ),
+      required: requiredFields,
+    };
   }
 }
 

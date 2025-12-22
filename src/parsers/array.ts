@@ -1,13 +1,14 @@
-import { Decoder, type Infer$DecoderOutput } from './common';
+import { type JSONSchema4 } from 'json-schema';
+import { Decoder, type InferDecoderOutput } from './common';
 
 export class $Array<
-  TDecoder extends Decoder<Infer$DecoderOutput<TDecoder>>,
-> extends Decoder<Infer$DecoderOutput<TDecoder>[]> {
+  TDecoder extends Decoder<InferDecoderOutput<TDecoder>>,
+> extends Decoder<InferDecoderOutput<TDecoder>[]> {
   constructor(readonly decoder: TDecoder) {
     super('array');
   }
 
-  parse(input: unknown): Infer$DecoderOutput<TDecoder>[] {
+  override parse(input: unknown): InferDecoderOutput<TDecoder>[] {
     const array: unknown[] = this.tryExtractArray(input);
 
     return array.map(item => this.decoder.parse(item));
@@ -41,12 +42,19 @@ export class $Array<
     }
   }
 
-  toString(): string {
+  override toString(): string {
     return `${this.internalIdentifier} [ ${this.decoder.toString()} ]`;
+  }
+
+  override toJSONSchema(): JSONSchema4 {
+    return {
+      type: 'array',
+      items: this.decoder.toJSONSchema(),
+    };
   }
 }
 
-export function array<TDecoder extends Decoder<Infer$DecoderOutput<TDecoder>>>(
+export function array<TDecoder extends Decoder<InferDecoderOutput<TDecoder>>>(
   decoder: TDecoder
 ): $Array<TDecoder> {
   return new $Array(decoder);

@@ -1,3 +1,4 @@
+import { type JSONSchema4 } from 'json-schema';
 import { Decoder } from './common/decoder';
 
 export interface StringDecoderOptions {
@@ -20,7 +21,7 @@ export class $String extends Decoder<string> {
     }
   }
 
-  parse(input: unknown): string {
+  override parse(input: unknown): string {
     if (typeof input !== 'string') {
       throw new Error(`Expected string, got ${typeof input}`);
     }
@@ -46,8 +47,18 @@ export class $String extends Decoder<string> {
     return input;
   }
 
-  toString(): string {
+  override toString(): string {
     return this.internalIdentifier;
+  }
+
+  override toJSONSchema(): JSONSchema4 {
+    const { minLength, maxLength, pattern } = this.options ?? {};
+    return {
+      type: 'string',
+      ...(minLength ? { minLength } : {}),
+      ...(maxLength ? { maxLength } : {}),
+      ...(pattern ? { pattern: `/${pattern.source}/${pattern.flags}` } : {}),
+    };
   }
 }
 

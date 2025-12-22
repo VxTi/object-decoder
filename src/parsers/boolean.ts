@@ -1,7 +1,8 @@
+import { type JSONSchema4 } from 'json-schema';
 import { Decoder } from './common';
 
 export class $Boolean extends Decoder<boolean> {
-  parse(input: unknown): boolean {
+  override parse(input: unknown): boolean {
     if (typeof input === 'boolean') return input;
 
     if (typeof input !== 'string') {
@@ -17,8 +18,14 @@ export class $Boolean extends Decoder<boolean> {
     return lowercase === 'true';
   }
 
-  toString(): string {
+  override toString(): string {
     return this.internalIdentifier;
+  }
+
+  override toJSONSchema(): JSONSchema4 {
+    return {
+      type: 'boolean',
+    };
   }
 }
 

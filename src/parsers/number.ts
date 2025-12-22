@@ -1,3 +1,4 @@
+import { type JSONSchema4 } from 'json-schema';
 import { Decoder } from './common';
 
 export interface NumberDecoderOptions {
@@ -10,7 +11,7 @@ export class $Number extends Decoder<number> {
     super('number');
   }
 
-  parse(input: unknown): number {
+  override parse(input: unknown): number {
     const parsed: number = this.tryExtractNumber(input);
 
     if (this.options?.min && parsed < this.options.min) {
@@ -46,8 +47,18 @@ export class $Number extends Decoder<number> {
     return number;
   }
 
-  toString(): string {
+  override toString(): string {
     return this.internalIdentifier;
+  }
+
+  override toJSONSchema(): JSONSchema4 {
+    const { min, max } = this.options ?? {};
+
+    return {
+      type: 'number',
+      ...(min ? { minimum: min } : {}),
+      ...(max ? { maximum: max } : {}),
+    };
   }
 }
 

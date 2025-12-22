@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import { number } from './number';
 import { object } from './object';
 import { optional } from './optional';
 import { string } from './string';
+import { union } from './union';
 
 describe('object', () => {
   it('should parse objects correctly', () => {
@@ -88,5 +90,91 @@ describe('object', () => {
     expect(decoder.toString()).toMatchInlineSnapshot(
       `"object { test [ string ], obj [ object { nested [ string ] } ] }"`
     );
+  });
+
+  it('should produce a proper json schema object', () => {
+    const decoder = object({
+      firstField: string({ pattern: /test/g }),
+      somethingElse: number(),
+      maybe: optional(string()),
+
+      cars: union([
+        object({
+          test: string(),
+        }),
+        object({
+          nope: number(),
+        }),
+      ]),
+      nested: object({
+        test: string(),
+      }),
+    });
+
+    expect(decoder.toJSONSchema()).toMatchInlineSnapshot(`
+      {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "cars": {
+            "oneOf": [
+              {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "test": {
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "test",
+                ],
+                "type": "object",
+              },
+              {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "nope": {
+                    "type": "number",
+                  },
+                },
+                "required": [
+                  "nope",
+                ],
+                "type": "object",
+              },
+            ],
+            "type": "object",
+          },
+          "firstField": {
+            "pattern": "/test/g",
+            "type": "string",
+          },
+          "maybe": {
+            "type": "string",
+          },
+          "nested": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "properties": {
+              "test": {
+                "type": "string",
+              },
+            },
+            "required": [
+              "test",
+            ],
+            "type": "object",
+          },
+          "somethingElse": {
+            "type": "number",
+          },
+        },
+        "required": [
+          "firstField",
+          "somethingElse",
+          "cars",
+          "nested",
+        ],
+        "type": "object",
+      }
+    `);
   });
 });
