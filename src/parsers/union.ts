@@ -8,7 +8,7 @@ export class $Union<
     super('union');
   }
 
-  override parse(input: unknown): InferDecoderOutput<TDecoders> {
+  public parse(input: unknown): InferDecoderOutput<TDecoders> {
     for (const decoder of this.decoders) {
       try {
         return decoder.parse(input);
@@ -20,13 +20,13 @@ export class $Union<
     throw new Error(`Failed to parse union, got: "${typeof input}"`);
   }
 
-  override toString(): string {
+  public toString(): string {
     return `${this.internalIdentifier} [ ${this.decoders
       .map(decoder => decoder.toString())
       .join(' | ')} ]`;
   }
 
-  override toJSONSchema(): JSONSchema7 {
+  public toJSONSchema(): JSONSchema7 {
     return {
       type: 'object',
       oneOf: this.decoders.map(decoder => decoder.toJSONSchema()),

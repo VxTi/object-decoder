@@ -18,7 +18,7 @@ export class $Optional<
     return `${this.internalIdentifier} [ ${this.decoder.toString()} ]`;
   }
 
-  override toJSONSchema(): JSONSchema7 {
+  public toJSONSchema(): JSONSchema7 {
     return this.decoder.toJSONSchema();
   }
 }

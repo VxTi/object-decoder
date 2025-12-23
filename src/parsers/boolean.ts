@@ -2,7 +2,7 @@ import { type JSONSchema7 } from 'json-schema';
 import { Decoder } from './common';
 
 export class $Boolean extends Decoder<boolean> {
-  override parse(input: unknown): boolean {
+  public parse(input: unknown): boolean {
     if (typeof input === 'boolean') return input;
 
     if (typeof input !== 'string') {
@@ -18,11 +18,11 @@ export class $Boolean extends Decoder<boolean> {
     return lowercase === 'true';
   }
 
-  override toString(): string {
+  public toString(): string {
     return this.internalIdentifier;
   }
 
-  override toJSONSchema(): JSONSchema7 {
+  public toJSONSchema(): JSONSchema7 {
     return {
       type: 'boolean',
     };

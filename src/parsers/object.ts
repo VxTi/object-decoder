@@ -1,6 +1,6 @@
 import { type JSONSchema7 } from 'json-schema';
 import { type Prettify } from '../utils';
-import { Decoder, type Infer } from './common';
+import { Decoder, type $Infer } from './common';
 import { $Optional } from './optional';
 
 export interface ObjectDecoderOptions {
@@ -11,7 +11,7 @@ export interface ObjectDecoderOptions {
 type FieldDecoder = Record<string, Decoder<any>>;
 
 type InferFieldDecoder<TFieldDecoders extends FieldDecoder> = {
-  [K in keyof TFieldDecoders]: Infer<TFieldDecoders[K]>;
+  [K in keyof TFieldDecoders]: $Infer<TFieldDecoders[K]>;
 } & {};
 
 export class $Object<TFieldDecoders extends FieldDecoder> extends Decoder<
@@ -24,7 +24,7 @@ export class $Object<TFieldDecoders extends FieldDecoder> extends Decoder<
     super('object');
   }
 
-  override parse(input: unknown): InferFieldDecoder<TFieldDecoders> {
+  public parse(input: unknown): InferFieldDecoder<TFieldDecoders> {
     const obj = this.extractObject(input);
     const result: Partial<InferFieldDecoder<TFieldDecoders>> = {};
 
@@ -74,13 +74,13 @@ export class $Object<TFieldDecoders extends FieldDecoder> extends Decoder<
     );
   }
 
-  override toString(): string {
+  public toString(): string {
     return `${this.internalIdentifier} { ${Object.entries(this.fieldDecoders)
       .map(([field, decoder]) => `${field} [ ${decoder.toString()} ]`)
       .join(', ')} }`;
   }
 
-  override toJSONSchema(): JSONSchema7 {
+  public toJSONSchema(): JSONSchema7 {
     const requiredFields: string[] = Object.entries(this.fieldDecoders)
       .filter(([, decoder]) => !(decoder instanceof $Optional))
       .map(([field]) => field);

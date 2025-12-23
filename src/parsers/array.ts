@@ -8,7 +8,7 @@ export class $Array<
     super('array');
   }
 
-  override parse(input: unknown): InferDecoderOutput<TDecoder>[] {
+  public parse(input: unknown): InferDecoderOutput<TDecoder>[] {
     const array: unknown[] = this.tryExtractArray(input);
 
     return array.map(item => this.decoder.parse(item));
@@ -42,11 +42,11 @@ export class $Array<
     }
   }
 
-  override toString(): string {
+  public toString(): string {
     return `${this.internalIdentifier} [ ${this.decoder.toString()} ]`;
   }
 
-  override toJSONSchema(): JSONSchema7 {
+  public toJSONSchema(): JSONSchema7 {
     return {
       type: 'array',
       items: this.decoder.toJSONSchema(),

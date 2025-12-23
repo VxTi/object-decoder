@@ -11,7 +11,7 @@ export class $Number extends Decoder<number> {
     super('number');
   }
 
-  override parse(input: unknown): number {
+  public parse(input: unknown): number {
     const parsed: number = this.tryExtractNumber(input);
 
     if (this.options?.min && parsed < this.options.min) {
@@ -47,11 +47,11 @@ export class $Number extends Decoder<number> {
     return number;
   }
 
-  override toString(): string {
+  public toString(): string {
     return this.internalIdentifier;
   }
 
-  override toJSONSchema(): JSONSchema7 {
+  public toJSONSchema(): JSONSchema7 {
     const { min, max } = this.options ?? {};
 
     return {

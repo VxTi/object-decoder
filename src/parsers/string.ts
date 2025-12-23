@@ -23,7 +23,7 @@ export class $String extends Decoder<string> {
     }
   }
 
-  override parse(input: unknown): string {
+  public parse(input: unknown): string {
     if (typeof input !== 'string') {
       throw new Error(`Expected string, got ${typeof input}`);
     }
@@ -51,11 +51,11 @@ export class $String extends Decoder<string> {
     return input;
   }
 
-  override toString(): string {
+  public toString(): string {
     return this.internalIdentifier;
   }
 
-  override toJSONSchema(): JSONSchema7 {
+  public toJSONSchema(): JSONSchema7 {
     const { minLength, maxLength, pattern } = this.options ?? {};
     return {
       type: 'string',

@@ -6,7 +6,7 @@ export class $Literal<TLiteral extends string> extends Decoder<TLiteral> {
     super('literal');
   }
 
-  override parse(input: unknown): TLiteral {
+  public parse(input: unknown): TLiteral {
     if (typeof input !== 'string') {
       throw new Error(`Expected string, got ${typeof input}`);
     }
@@ -20,11 +20,11 @@ export class $Literal<TLiteral extends string> extends Decoder<TLiteral> {
     return input as TLiteral;
   }
 
-  override toString(): string {
+  public toString(): string {
     return this.internalIdentifier;
   }
 
-  override toJSONSchema(): JSONSchema7 {
+  public toJSONSchema(): JSONSchema7 {
     return {
       type: 'string',
       const: this.value,
@@ -32,8 +32,8 @@ export class $Literal<TLiteral extends string> extends Decoder<TLiteral> {
   }
 }
 
-export function literal<TLiteralOverride extends string = string>(
-  literal: TLiteralOverride
-): $Literal<TLiteralOverride> {
+export function literal<TLiteral extends string = string>(
+  literal: TLiteral
+): $Literal<TLiteral> {
   return new $Literal(literal);
 }

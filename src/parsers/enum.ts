@@ -8,8 +8,12 @@ export class $Enum<T extends EnumType> extends Decoder<T> {
     super('enum');
   }
 
-  override parse(input: unknown): T {
-    if (typeof input !== 'string') {
+  public parse(input: unknown): T {
+    if (
+      typeof input !== 'string' &&
+      typeof input !== 'number' &&
+      typeof input !== 'boolean'
+    ) {
       throw new Error(
         `Expected enum of ${this.values.join(', ')}, got ${typeof input}`
       );
@@ -22,11 +26,11 @@ export class $Enum<T extends EnumType> extends Decoder<T> {
     return input as T;
   }
 
-  override toString(): string {
+  public toString(): string {
     return `${this.internalIdentifier} [ ${this.values.join(', ')} ]`;
   }
 
-  override toJSONSchema(): JSONSchema7 {
+  public toJSONSchema(): JSONSchema7 {
     return {
       type: 'string',
       enum: this.values,
