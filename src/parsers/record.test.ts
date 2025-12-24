@@ -97,7 +97,9 @@ describe('record', () => {
 
   it('should throw an error if a key is not found in the record definition', () => {
     const model = record(
-      number().refine(input => input === 0, { error: 'Key must be 1' }),
+      number().refine<number>(input => input === 0, {
+        error: 'Key must be 0',
+      }),
       object({
         name: string(),
         email: string(),

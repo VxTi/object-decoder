@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { type JSONSchema7 } from 'json-schema';
 import {
   Decoder,
@@ -6,9 +7,14 @@ import {
   Ok,
   type Result,
 } from './common';
+import { type $Enum } from './enum';
 
 // Explicitly separated, as this would otherwise cause a type error with inner-defined types
-type IndexableDecoder = Decoder<string> | Decoder<number> | Decoder<symbol>;
+type IndexableDecoder =
+  | Decoder<string>
+  | Decoder<number>
+  | Decoder<symbol>
+  | $Enum<any>;
 
 type __ProcessedRecord<
   TKeyDecoder extends IndexableDecoder,

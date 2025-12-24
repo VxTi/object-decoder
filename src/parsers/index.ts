@@ -8,4 +8,4 @@ export * from './optional';
 export * from './record';
 export * from './string';
 export * from './common';
-export * from './union'
+export * from './union';

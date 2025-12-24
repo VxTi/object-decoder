@@ -17,7 +17,6 @@ type __Infer<TFieldDecoders extends $ObjectFields> = Prettify<{
   [K in keyof TFieldDecoders]: $Infer<TFieldDecoders[K]>;
 }>;
 
-
 export class $Object<TFieldDecoders extends $ObjectFields> extends Decoder<
   __Infer<TFieldDecoders>
 > {

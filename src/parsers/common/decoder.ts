@@ -4,7 +4,9 @@ import { Err, Ok, type Result } from './result';
 export type InferDecoderResult<T> = T extends Decoder<infer F> ? F : never;
 
 type TransformFn<In, Out> = (input: In) => Out;
-type RefineFn<TIn, TOut extends TIn = TIn> = (input: TIn) => input is TOut;
+type RefineFn<TIn, TOut extends TIn = TIn> =
+  | ((input: TIn) => input is TOut)
+  | ((input: TIn) => boolean);
 
 export interface RefineOptions {
   error?: string;
@@ -92,7 +94,7 @@ export class $Transformed<TInput, TOutput> extends Decoder<TOutput> {
   }
 }
 
-export class $Refined<TInput, TOutput extends TInput> extends Decoder<TInput> {
+export class $Refined<TInput, TOutput extends TInput> extends Decoder<TOutput> {
   constructor(
     private readonly parentDecoder: Decoder<TInput>,
     private readonly refineFn: RefineFn<TInput, TOutput>,
