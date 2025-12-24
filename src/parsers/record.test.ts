@@ -61,7 +61,7 @@ describe('record', () => {
     );
 
     const input = {
-      0: {
+      [0]: {
         user: {
           name: 'Alice',
           age: 25,
@@ -159,7 +159,7 @@ describe('record', () => {
     };
 
     expect(() => model.parse(input)).toThrowErrorMatchingInlineSnapshot(
-      'Failed to decode record value for key \'user\': Failed to decode object field "age": Expected number, got "invalid"'
+      `[Error: Failed to decode record value for key '0' -> user -> age -> Expected number, got "invalid"]`
     );
   });
 
@@ -182,7 +182,7 @@ describe('record', () => {
     );
 
     expect(decoder.toString()).toMatchInlineSnapshot(
-      `"record [ name: string\n,age: number\n,active: boolean ]"`
+      `"record [ string, object { name [ string ], age [ number ], active [ boolean ] } ]"`
     );
   });
 
@@ -197,6 +197,22 @@ describe('record', () => {
 
     expect(decoder.toJSONSchema()).toMatchInlineSnapshot(`
       {
+        "additionalProperties": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "age": {
+              "type": "number",
+            },
+            "name": {
+              "type": "string",
+            },
+          },
+          "required": [
+            "name",
+            "age",
+          ],
+          "type": "object",
+        },
         "type": "object",
       }
     `);
@@ -212,8 +228,10 @@ describe('record', () => {
     );
 
     const input = {
-      firstName: 'John',
-      lastName: 'Smith',
+      '0': {
+        firstName: 'John',
+        lastName: 'Smith',
+      },
     };
 
     expect(model.parse(input)).toEqual(input);
@@ -227,11 +245,11 @@ describe('record', () => {
       })
     );
 
-    const result = model.safeParse({ name: 'Test' });
+    const result = model.safeParse({ '0': { name: 'Test' } });
 
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.value).toEqual({ name: 'Test' });
+      expect(result.value).toEqual({ '0': { name: 'Test' } });
     }
   });
 
@@ -247,7 +265,7 @@ describe('record', () => {
 
     expect(result.success).toBe(false);
     expect((result as ErrorResult).error).toMatchInlineSnapshot(
-      `"Failed to decode record value for key 'name' -> Expected object with key, got number"`
+      `"Failed to decode record value for key '' -> name -> Expected string, got number"`
     );
   });
 });

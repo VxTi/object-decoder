@@ -80,7 +80,7 @@ export class $Record<
   }
 
   private extractKey(
-    unsafeKey: string
+    unsafeKey: string | number
   ): Result<InferDecoderResult<TKeyDecoder>> {
     const keyResult = this.keyDecoder.safeParse(unsafeKey);
 

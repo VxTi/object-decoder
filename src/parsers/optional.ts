@@ -1,4 +1,4 @@
-import { type JSONSchema7 }                                  from 'json-schema';
+import { type JSONSchema7 } from 'json-schema';
 import { Decoder, type Result, type InferDecoderResult, Ok } from './common';
 
 export class $Optional<

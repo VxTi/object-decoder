@@ -9,8 +9,8 @@ describe('union parsing', () => {
 
     expect(model.parse(123)).toEqual(123);
     expect(model.parse('test')).toEqual('test');
-    expect(() => model.parse({})).toThrowError(
-      'Failed to parse union, got: "object"'
+    expect(() => model.parse({})).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Failed to parse union, got: "object"]`
     );
   });
 

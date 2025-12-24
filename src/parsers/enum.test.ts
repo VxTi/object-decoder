@@ -20,17 +20,23 @@ describe('enum', () => {
     expect(testEnum.parse('A')).toBe('A');
     expect(testEnum.parse('B')).toBe('B');
     expect(testEnum.parse('C')).toBe('C');
-    expect(() => testEnum.parse('D')).toThrowError('Invalid enum value: D');
+    expect(() => testEnum.parse('D')).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Invalid enum value: D]`
+    );
   });
 
   it('excludes fields correctly', () => {
     const testEnum = enumerate(SimpleEnum);
     const testWithoutA = testEnum.exclude(SimpleEnum.A);
 
-    expect(() => testWithoutA.parse('A')).toThrowError('Invalid enum value: A');
+    expect(() => testWithoutA.parse('A')).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Invalid enum value: A]`
+    );
     expect(testWithoutA.parse('B')).toBe('B');
     expect(testWithoutA.parse('C')).toBe('C');
-    expect(() => testWithoutA.parse('D')).toThrowError('Invalid enum value: D');
+    expect(() => testWithoutA.parse('D')).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Invalid enum value: D]`
+    );
   });
 
   it('appends fields correctly', () => {
@@ -41,7 +47,9 @@ describe('enum', () => {
     expect(testWithD.parse('B')).toBe('B');
     expect(testWithD.parse('C')).toBe('C');
     expect(testWithD.parse('D')).toBe('D');
-    expect(() => testWithD.parse('E')).toThrowError('Invalid enum value: E');
+    expect(() => testWithD.parse('E')).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Invalid enum value: E]`
+    );
 
     const literalSchema = enumerate(['first', 'second'] as const);
     const additionalLiteralSchema = literalSchema.include('third' as const);
@@ -49,8 +57,8 @@ describe('enum', () => {
     expect(additionalLiteralSchema.parse('first')).toBe('first');
     expect(additionalLiteralSchema.parse('second')).toBe('second');
     expect(additionalLiteralSchema.parse('third')).toBe('third');
-    expect(() => additionalLiteralSchema.parse('fourth')).toThrowError(
-      'Invalid enum value: fourth'
-    );
+    expect(() =>
+      additionalLiteralSchema.parse('fourth')
+    ).toThrowErrorMatchingInlineSnapshot(`[Error: Invalid enum value: fourth]`);
   });
 });

@@ -5,7 +5,6 @@ import {
   Ok,
   type InferDecoderResult,
   type Result,
-  type SuccessResult,
 } from './common';
 
 export class $Array<
@@ -24,23 +23,18 @@ export class $Array<
       return arrayResult;
     }
 
-    const results = arrayResult.value.map(item => this.decoder.safeParse(item));
+    const output: InferDecoderResult<TDecoder>[] = [];
 
-    const failedItems = results.filter(result => !result.success);
+    for (const [i, value] of arrayResult.value.entries()) {
+      const result = this.decoder.safeParse(value);
+      if (!result.success) {
+        return Err(`array [${i}] -> ${result.error}`);
+      }
 
-    if (failedItems.length > 0) {
-      return Err(
-        `One or more items failed to parse:\n${failedItems
-          .map(result => result.error)
-          .join(',\n')}`
-      );
+      output.push(result.value);
     }
 
-    const value = (
-      results as SuccessResult<InferDecoderResult<TDecoder>>[]
-    ).map(result => result.value);
-
-    return Ok(value);
+    return Ok(output);
   }
 
   private tryExtractArray(input: unknown): Result<unknown[]> {
@@ -49,25 +43,26 @@ export class $Array<
     }
 
     if (typeof input !== 'string') {
-      return Err(`Expected array-like string, got "${typeof input}"`);
+      return Err(`Expected array-like string, got ${typeof input}`);
     }
-    const arrayExtractionResult: Result<unknown> =
-      this.tryParseStringArray(input);
+    const arrayExtractionResult: Result<unknown[]> = this.tryParseJson(input);
 
     if (!arrayExtractionResult.success) {
       return arrayExtractionResult;
     }
 
-    if (!Array.isArray(arrayExtractionResult.value)) {
-      return Err(`Expected array, got ${typeof arrayExtractionResult.value}`);
-    }
-
     return Ok(arrayExtractionResult.value);
   }
 
-  private tryParseStringArray(input: string): Result<unknown> {
+  private tryParseJson(input: string): Result<unknown[]> {
     try {
-      return Ok(JSON.parse(input));
+      const parsed: unknown = JSON.parse(input);
+
+      if (!Array.isArray(parsed)) {
+        return Err(`Expected array, got ${typeof parsed}`);
+      }
+
+      return Ok(parsed);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
 

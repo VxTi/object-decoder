@@ -10,8 +10,8 @@ describe('boolean', () => {
   });
 
   it('should throw an error if the input string is not booleanish', () => {
-    expect(() => model.parse('Non boolean')).toThrowError(
-      'Expected boolean, got "Non boolean"'
+    expect(() => model.parse('Non boolean')).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Expected boolean, got "Non boolean"]`
     );
   });
 

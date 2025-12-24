@@ -12,15 +12,15 @@ describe('string', () => {
 
   it('should throw an error if the input string does not match the pattern', () => {
     const model = string({ pattern: /^[a-zA-Z0-9]+$/ });
-    expect(() => model.parse('test 123')).toThrowError(
-      'Input string does not match pattern "/^[a-zA-Z0-9]+$/", got "test 123"'
+    expect(() => model.parse('test 123')).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Input string does not match pattern "/^[a-zA-Z0-9]+$/", got "test 123"]`
     );
   });
 
   it('should throw an error if the input string does not conform to the minimum length', () => {
     const model = string({ minLength: 5 });
-    expect(() => model.parse('test')).toThrowError(
-      'Input string is shorter than minimum length 5, got "test"'
+    expect(() => model.parse('test')).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Input string is shorter than minimum length 5, got "test"]`
     );
   });
 
@@ -41,6 +41,8 @@ describe('string', () => {
     });
 
     expect(model.parse('test')).toEqual('test');
-    expect(() => model.parse('other')).toThrowError('Input must be "test"');
+    expect(() => model.parse('other')).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Input must be "test"]`
+    );
   });
 });

@@ -8,7 +8,9 @@ describe('optional', () => {
 
     expect(decoder.parse(undefined)).toEqual(undefined);
     expect(decoder.parse('test')).toEqual('test');
-    expect(() => decoder.parse({})).toThrowError('Expected string, got object');
+    expect(() => decoder.parse({})).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Expected string, got object]`
+    );
   });
 
   it('should stringify optional decoders', () => {

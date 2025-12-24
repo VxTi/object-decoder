@@ -24,25 +24,27 @@ describe('object', () => {
       missing: string(),
     });
 
-    expect(() => model.parse(input)).toThrowError(
-      'Missing required field: "missing"'
+    expect(() => model.parse(input)).toThrowErrorMatchingInlineSnapshot(
+      `[Error: "Missing required field: "missing"]`
     );
   });
 
   it('should throw an error if an illegal object is provided', () => {
     const model = object({});
 
-    expect(() => model.parse(new Date())).toThrowError(
-      'Date does not quality as valid object'
+    expect(() => model.parse(new Date())).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Date does not quality as valid object]`
     );
-    expect(() => model.parse(new RegExp(''))).toThrowError(
-      'RegExp does not quality as valid object'
+    expect(() =>
+      model.parse(new RegExp(''))
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: RegExp does not quality as valid object]`
     );
-    expect(() => model.parse(new Set())).toThrowError(
-      'Set does not quality as valid object'
+    expect(() => model.parse(new Set())).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Set does not quality as valid object]`
     );
-    expect(() => model.parse(new Map())).toThrowError(
-      'Map does not quality as valid object'
+    expect(() => model.parse(new Map())).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Map does not quality as valid object]`
     );
   });
 
@@ -58,7 +60,9 @@ describe('object', () => {
       { disallowUnknownFields: true }
     );
 
-    expect(() => model.parse(input)).toThrowError('Unknown fields: "unknown"');
+    expect(() => model.parse(input)).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Unknown disallowed fields: "unknown"]`
+    );
   });
 
   it('should combine models correctly and still parse models correctly', () => {
@@ -100,7 +104,9 @@ describe('object', () => {
         omittedField: 'something',
         persistent: 1,
       })
-    ).toThrowError('Unknown fields: "omittedField"');
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Unknown disallowed fields: "omittedField"]`
+    );
   });
 
   it('respects optionality of fields', () => {

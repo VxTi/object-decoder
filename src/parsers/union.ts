@@ -1,4 +1,4 @@
-import { type JSONSchema7 }                                   from 'json-schema';
+import { type JSONSchema7 } from 'json-schema';
 import { Decoder, Err, type InferDecoderResult, type Result } from './common';
 
 export class $Union<
