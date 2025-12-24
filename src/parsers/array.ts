@@ -3,21 +3,21 @@ import {
   Decoder,
   Err,
   Ok,
-  type InferDecoderOutput,
+  type InferDecoderResult,
   type Result,
   type SuccessResult,
 } from './common';
 
 export class $Array<
-  TDecoder extends Decoder<InferDecoderOutput<TDecoder>>,
-> extends Decoder<InferDecoderOutput<TDecoder>[]> {
+  TDecoder extends Decoder<InferDecoderResult<TDecoder>>,
+> extends Decoder<InferDecoderResult<TDecoder>[]> {
   constructor(readonly decoder: TDecoder) {
     super('array');
   }
 
   protected parseInternal(
     input: unknown
-  ): Result<InferDecoderOutput<TDecoder>[]> {
+  ): Result<InferDecoderResult<TDecoder>[]> {
     const arrayResult: Result<unknown[]> = this.tryExtractArray(input);
 
     if (!arrayResult.success) {
@@ -37,7 +37,7 @@ export class $Array<
     }
 
     const value = (
-      results as SuccessResult<InferDecoderOutput<TDecoder>>[]
+      results as SuccessResult<InferDecoderResult<TDecoder>>[]
     ).map(result => result.value);
 
     return Ok(value);
@@ -87,7 +87,7 @@ export class $Array<
   }
 }
 
-export function array<TDecoder extends Decoder<InferDecoderOutput<TDecoder>>>(
+export function array<TDecoder extends Decoder<InferDecoderResult<TDecoder>>>(
   decoder: TDecoder
 ): $Array<TDecoder> {
   return new $Array(decoder);

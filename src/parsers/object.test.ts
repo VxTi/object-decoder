@@ -29,6 +29,23 @@ describe('object', () => {
     );
   });
 
+  it('should throw an error if an illegal object is provided', () => {
+    const model = object({});
+
+    expect(() => model.parse(new Date())).toThrowError(
+      'Date does not quality as valid object'
+    );
+    expect(() => model.parse(new RegExp(''))).toThrowError(
+      'RegExp does not quality as valid object'
+    );
+    expect(() => model.parse(new Set())).toThrowError(
+      'Set does not quality as valid object'
+    );
+    expect(() => model.parse(new Map())).toThrowError(
+      'Map does not quality as valid object'
+    );
+  });
+
   it('should throw an error if there are unknown fields and they are disallowed', () => {
     const input = {
       test: '123',

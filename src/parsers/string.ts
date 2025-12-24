@@ -5,8 +5,6 @@ export interface StringDecoderOptions {
   pattern?: RegExp;
   minLength?: number;
   maxLength?: number;
-
-  parser?: (input: unknown) => string;
 }
 
 export class $String extends Decoder<string> {

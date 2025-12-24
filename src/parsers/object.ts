@@ -12,12 +12,12 @@ export interface ObjectDecoderOptions {
 }
 
 type ObjectLike = Record<string, any>;
-type __Entries = Record<string, Decoder<any>>;
-type __Infer<TFieldDecoders extends __Entries> = Prettify<{
+export type $ObjectFields = Record<string, Decoder<any>>;
+type __Infer<TFieldDecoders extends $ObjectFields> = Prettify<{
   [K in keyof TFieldDecoders]: $Infer<TFieldDecoders[K]>;
 }>;
 
-export class $Object<TFieldDecoders extends __Entries> extends Decoder<
+export class $Object<TFieldDecoders extends $ObjectFields> extends Decoder<
   __Infer<TFieldDecoders>
 > {
   constructor(
@@ -43,9 +43,12 @@ export class $Object<TFieldDecoders extends __Entries> extends Decoder<
       ) {
         return Err(`"Missing required field: "${key}"`);
       }
+
       const validatorResult = validator.safeParse(extractionResult.value[key]);
 
-      if (!validatorResult.success) return validatorResult;
+      if (!validatorResult.success) {
+        return Err(`${key} -> ${validatorResult.error}`);
+      }
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       result[key] = validatorResult.value;
@@ -56,7 +59,7 @@ export class $Object<TFieldDecoders extends __Entries> extends Decoder<
         k => !(k in this.fieldDecoders)
       );
       if (unknownFields.length > 0) {
-        return Err(`Unknown fields: "${unknownFields.join(', ')}"`);
+        return Err(`Unknown disallowed fields: "${unknownFields.join(', ')}"`);
       }
     }
 
@@ -65,14 +68,35 @@ export class $Object<TFieldDecoders extends __Entries> extends Decoder<
 
   private extractObject(input: unknown): Result<ObjectLike> {
     if (!input) {
-      return Err(`Expected object with key, got ${typeof input}`);
+      return Err(`Expected object, got ${typeof input}`);
     }
     if (typeof input === 'object') {
+      if (Array.isArray(input)) {
+        return Err(`Array does not quality as valid object`);
+      }
+
+      if (input instanceof RegExp) {
+        return Err(`RegExp does not quality as valid object`);
+      }
+      if (input instanceof Date) {
+        return Err(`Date does not quality as valid object`);
+      }
+      if (input instanceof Set) {
+        return Err(`Set does not quality as valid object`);
+      }
+      if (input instanceof Map) {
+        return Err(`Map does not quality as valid object`);
+      }
+
       return Ok(input as ObjectLike);
     }
 
+    if (typeof input !== 'string') {
+      return Err(`Expected object with key, got ${typeof input}`);
+    }
+
     try {
-      return Ok(JSON.parse(input as string) as ObjectLike);
+      return Ok(JSON.parse(input) as ObjectLike);
     } catch {
       return Err(`Expected object, got ${typeof input}`);
     }
@@ -83,7 +107,7 @@ export class $Object<TFieldDecoders extends __Entries> extends Decoder<
    * @param other - The object decoder to extend with.
    * @returns A new object decoder that combines the field decoders of both decoders.
    */
-  extend<TExtendFieldParsers extends __Entries>(
+  extend<TExtendFieldParsers extends $ObjectFields>(
     other: $Object<TExtendFieldParsers>
   ): $Object<Prettify<TFieldDecoders & TExtendFieldParsers>> {
     return new $Object<Prettify<TFieldDecoders & TExtendFieldParsers>>(
@@ -132,7 +156,7 @@ export class $Object<TFieldDecoders extends __Entries> extends Decoder<
   }
 }
 
-export function object<TFieldDecoders extends __Entries>(
+export function object<TFieldDecoders extends $ObjectFields>(
   value: TFieldDecoders,
   options?: ObjectDecoderOptions
 ): $Object<TFieldDecoders> {

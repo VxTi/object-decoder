@@ -1,16 +1,16 @@
-import { type JSONSchema7 } from 'json-schema';
-import { Decoder, type Result, type InferDecoderOutput, Ok } from './common';
+import { type JSONSchema7 }                                  from 'json-schema';
+import { Decoder, type Result, type InferDecoderResult, Ok } from './common';
 
 export class $Optional<
-  TDecoder extends Decoder<InferDecoderOutput<TDecoder>>,
-> extends Decoder<InferDecoderOutput<TDecoder> | undefined> {
+  TDecoder extends Decoder<InferDecoderResult<TDecoder>>,
+> extends Decoder<InferDecoderResult<TDecoder> | undefined> {
   constructor(private readonly decoder: TDecoder) {
     super('optional');
   }
 
   protected parseInternal(
     input: unknown
-  ): Result<InferDecoderOutput<TDecoder> | undefined> {
+  ): Result<InferDecoderResult<TDecoder> | undefined> {
     if (!input) {
       return Ok(undefined);
     }
@@ -28,7 +28,7 @@ export class $Optional<
 }
 
 export function optional<
-  TDecoder extends Decoder<InferDecoderOutput<TDecoder>>,
+  TDecoder extends Decoder<InferDecoderResult<TDecoder>>,
 >(decoder: TDecoder): $Optional<TDecoder> {
   return new $Optional<TDecoder>(decoder);
 }

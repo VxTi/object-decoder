@@ -1,16 +1,16 @@
-import { type JSONSchema7 } from 'json-schema';
-import { Decoder, Err, type InferDecoderOutput, type Result } from './common';
+import { type JSONSchema7 }                                   from 'json-schema';
+import { Decoder, Err, type InferDecoderResult, type Result } from './common';
 
 export class $Union<
-  TDecoders extends Decoder<InferDecoderOutput<TDecoders>>,
-> extends Decoder<InferDecoderOutput<TDecoders>> {
+  TDecoders extends Decoder<InferDecoderResult<TDecoders>>,
+> extends Decoder<InferDecoderResult<TDecoders>> {
   constructor(readonly decoders: TDecoders[]) {
     super('union');
   }
 
   protected parseInternal(
     input: unknown
-  ): Result<InferDecoderOutput<TDecoders>> {
+  ): Result<InferDecoderResult<TDecoders>> {
     for (const decoder of this.decoders) {
       const result = decoder.safeParse(input);
       if (result.success) {

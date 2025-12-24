@@ -42,6 +42,9 @@ abstract class $NumberBase extends Decoder<number> {
 
   private tryExtractNumber(input: unknown): Result<number> {
     if (typeof input === 'number') {
+      if (isNaN(input)) {
+        return Err(`Expected number, got NaN`);
+      }
       return Ok(input);
     }
 
