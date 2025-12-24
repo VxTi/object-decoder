@@ -98,12 +98,72 @@ export class $Int extends $NumberBase {
   }
 }
 
+/**
+ * Creates a decoder for parsing and validating number values.
+ *
+ * This function returns a {@link $Number} decoder instance that can parse numeric values from
+ * both number and string inputs. The decoder validates the parsed number against optional
+ * minimum and maximum constraints.
+ *
+ * @param options - Optional configuration object for number validation
+ * @param options.min - Minimum allowed value (inclusive). If specified, numbers below this value will fail validation
+ * @param options.max - Maximum allowed value (inclusive). If specified, numbers above this value will fail validation
+ *
+ * @returns A `$Number` decoder instance that can be used to parse and validate number values
+ *
+ * @example
+ * ```typescript
+ * // Create a decoder for numbers between 0 and 100
+ * const percentageDecoder = number({ min: 0, max: 100 });
+ *
+ * // Parse valid number input
+ * const result1 = percentageDecoder.safeParse(50);
+ * // result1 = { success: true, value: 50 }
+ *
+ * // Parse valid string input
+ * const result2 = percentageDecoder.safeParse("75.5");
+ * // result2 = { success: true, value: 75.5 }
+ *
+ * // Parse invalid input (out of range)
+ * const result3 = percentageDecoder.safeParse(150);
+ * // result3 = { success: false, error: "Number is greater than maximum value 100, got 150" }
+ * ```
+ */
 export function number(options?: NumberDecoderOptions): $Number {
   return new $Number(options);
 }
 
 /**
- * Constructs an integer decoder
+ * Creates a decoder for parsing and validating integer values.
+ *
+ * This function returns a {@link $Int} decoder instance that can parse integer values from
+ * both number and string inputs. The decoder uses {@link parseInt} internally to convert
+ * string values to integers and validates the parsed integer against optional
+ * minimum and maximum constraints.
+ *
+ * @param options - Optional configuration object for integer validation
+ * @param options.min - Minimum allowed value (inclusive). If specified, integers below this value will fail validation
+ * @param options.max - Maximum allowed value (inclusive). If specified, integers above this value will fail validation
+ *
+ * @returns A {@link $Int} decoder instance that can be used to parse and validate integer values
+ *
+ * @example
+ * ```typescript
+ * // Create a decoder for integers between 1 and 10
+ * const ratingDecoder = int({ min: 1, max: 10 });
+ *
+ * // Parse valid integer input
+ * const result1 = ratingDecoder.safeParse(7);
+ * // result1 = { success: true, value: 7 }
+ *
+ * // Parse valid string input (decimal portion is truncated by parseInt)
+ * const result2 = ratingDecoder.safeParse("8.3");
+ * // result2 = { success: true, value: 8 }
+ *
+ * // Parse invalid input (below minimum)
+ * const result3 = ratingDecoder.safeParse(0);
+ * // result3 = { success: false, error: "Number is less than minimum value 1, got 0" }
+ * ```
  */
 export function int(options?: NumberDecoderOptions): $Int {
   return new $Int(options);

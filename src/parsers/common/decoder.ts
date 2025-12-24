@@ -11,7 +11,7 @@ export interface RefineOptions {
 }
 
 export abstract class Decoder<TDecoderResult> {
-  constructor(protected readonly internalIdentifier: string) {}
+  protected constructor(protected readonly internalIdentifier: string) {}
 
   protected abstract parseInternal(input: unknown): Result<TDecoderResult>;
 

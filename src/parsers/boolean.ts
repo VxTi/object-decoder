@@ -2,6 +2,10 @@ import { type JSONSchema7 } from 'json-schema';
 import { Decoder, Err, Ok, type Result } from './common';
 
 export class $Boolean extends Decoder<boolean> {
+  constructor() {
+    super('boolean');
+  }
+
   protected parseInternal(input: unknown): Result<boolean> {
     if (typeof input === 'boolean') {
       return Ok(input);
@@ -32,5 +36,5 @@ export class $Boolean extends Decoder<boolean> {
 }
 
 export function boolean(): $Boolean {
-  return new $Boolean('boolean');
+  return new $Boolean();
 }

@@ -11,6 +11,7 @@ export class $Optional<
   protected parseInternal(
     input: unknown
   ): Result<InferDecoderResult<TDecoder> | undefined> {
+    // That's okay : )
     if (!input) {
       return Ok(undefined);
     }
@@ -18,7 +19,7 @@ export class $Optional<
     return this.decoder.safeParse(input);
   }
 
-  toString(): string {
+  public toString(): string {
     return `${this.internalIdentifier} [ ${this.decoder.toString()} ]`;
   }
 

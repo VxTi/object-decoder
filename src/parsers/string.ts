@@ -8,7 +8,7 @@ export interface StringDecoderOptions {
 }
 
 export class $String extends Decoder<string> {
-  constructor(readonly options?: StringDecoderOptions) {
+  constructor(private readonly options?: StringDecoderOptions) {
     super('string');
     if (!options) return;
 

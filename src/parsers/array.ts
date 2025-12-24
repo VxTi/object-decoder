@@ -10,7 +10,7 @@ import {
 export class $Array<
   TDecoder extends Decoder<InferDecoderResult<TDecoder>>,
 > extends Decoder<InferDecoderResult<TDecoder>[]> {
-  constructor(readonly decoder: TDecoder) {
+  constructor(private readonly decoder: TDecoder) {
     super('array');
   }
 
@@ -82,6 +82,35 @@ export class $Array<
   }
 }
 
+/**
+ * Creates an array decoder that validates and parses arrays where each element conforms to a specified decoder.
+ *
+ * The array decoder validates that the input is an array (or an array-like string) and then applies
+ * the provided decoder to each element. If any element fails validation, the entire array parsing fails.
+ * This decoder can also parse JSON strings representing arrays.
+ *
+ * @template TDecoder - The type of decoder used to validate each array element
+ * @param {TDecoder} decoder - A decoder instance that will be applied to each element in the array.
+ *                             Each element must successfully parse with this decoder for the array
+ *                             to be considered valid.
+ * @returns {$Array<TDecoder>} An array decoder that validates arrays of elements matching the provided decoder
+ *
+ * @example
+ * ```typescript
+ * import { array, number, string, object } from 'object-decoder';
+ *
+ * // Create a decoder for an array of numbers
+ * const numberArray = array(number());
+ *
+ * numberArray.safeParse([1, 2, 3]);           // { success: true, value: [1, 2, 3] }
+ * numberArray.safeParse("[4, 5, 6]");         // { success: true, value: [4, 5, 6] } (parses JSON string)
+ * numberArray.safeParse([1, "two", 3]);       // { success: false, error: "array [1] -> expected number, got string" }
+ *
+ * // Create a decoder for an array of objects
+ * const userArray = array(object({ name: string(), age: number() }));
+ * userArray.safeParse([{ name: "Alice", age: 30 }]);  // { success: true, value: [...] }
+ * ```
+ */
 export function array<TDecoder extends Decoder<InferDecoderResult<TDecoder>>>(
   decoder: TDecoder
 ): $Array<TDecoder> {

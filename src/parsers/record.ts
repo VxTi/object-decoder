@@ -104,6 +104,59 @@ export class $Record<
   }
 }
 
+/**
+ * Creates a decoder for record/dictionary objects with validated keys and values.
+ *
+ * The `record` function constructs a decoder that validates objects where both keys and values
+ * must conform to specific decoder schemas. This is useful for creating type-safe dictionaries,
+ * maps, or objects with dynamic keys that need validation.
+ *
+ * @template TKeyDecoder - A decoder type that produces string, number, or symbol results (indexable types)
+ * @template TFieldsDecoder - A decoder type for validating the values in the record
+ *
+ * @param {TKeyDecoder} keyDecoder - A decoder that validates and transforms the keys of the record.
+ *   Must be a decoder that produces string, number, or symbol types. Common choices include
+ *   string decoders, enum decoders, or literal decoders for restricted key sets.
+ *
+ * @param {TFieldsDecoder} input - A decoder that validates the values associated with each key.
+ *   Can be any decoder type (primitives, objects, arrays, unions, etc.) depending on the
+ *   expected value structure.
+ *
+ * @returns {$Record<TKeyDecoder, TFieldsDecoder>} A decoder instance that validates record objects
+ *   and produces a typed Record with keys of type `InferDecoderResult<TKeyDecoder>` and values
+ *   of type `InferDecoderResult<TFieldsDecoder>`.
+ *
+ * @remarks
+ * The decoder will reject:
+ * - Non-object values (undefined, null, primitives, arrays)
+ * - Special object types (RegExp, Date, Error instances)
+ * - Objects where any key fails key decoder validation
+ * - Objects where any value fails value decoder validation
+ *
+ * All keys from the input object are validated using the key decoder, and all values are
+ * validated using the value decoder. If any key or value fails validation, the entire
+ * record validation fails with a descriptive error message.
+ *
+ * @example
+ * ```typescript
+ * import { record, string, number } from './parsers';
+ *
+ * // Create a decoder for a record with string keys and number values
+ * const userScoresDecoder = record(string(), number());
+ *
+ * // Valid input
+ * const result = userScoresDecoder.parse({
+ *   alice: 95,
+ *   bob: 87,
+ *   charlie: 92
+ * });
+ * // result type: Record<string, number>
+ * // result value: { alice: 95, bob: 87, charlie: 92 }
+ *
+ * // Invalid input (value is not a number)
+ * userScoresDecoder.parse({ alice: "ninety-five" }); // throws an error
+ * ```
+ */
 export function record<
   TKeyDecoder extends IndexableDecoder,
   TFieldsDecoder extends Decoder<InferDecoderResult<TFieldsDecoder>>,

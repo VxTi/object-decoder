@@ -17,12 +17,13 @@ type __Infer<TFieldDecoders extends $ObjectFields> = Prettify<{
   [K in keyof TFieldDecoders]: $Infer<TFieldDecoders[K]>;
 }>;
 
+
 export class $Object<TFieldDecoders extends $ObjectFields> extends Decoder<
   __Infer<TFieldDecoders>
 > {
   constructor(
-    readonly fieldDecoders: TFieldDecoders,
-    readonly options?: ObjectDecoderOptions
+    protected readonly fieldDecoders: TFieldDecoders,
+    protected readonly options?: ObjectDecoderOptions
   ) {
     super('object');
   }
@@ -103,9 +104,42 @@ export class $Object<TFieldDecoders extends $ObjectFields> extends Decoder<
   }
 
   /**
-   * Extends the current object decoder with another object decoder.
-   * @param other - The object decoder to extend with.
-   * @returns A new object decoder that combines the field decoders of both decoders.
+   * Extends the current object decoder with fields from another object decoder.
+   *
+   * This method creates a new object decoder by merging the field decoders from the current
+   * decoder with those from the provided decoder. If there are overlapping field names,
+   * the fields from the provided decoder will override the fields from the current decoder.
+   *
+   * @template TExtendFieldParsers - The field decoders from the object decoder to extend with
+   * @param other - Another object decoder whose fields will be merged with the current decoder
+   * @returns A new object decoder containing all fields from both decoders
+   *
+   * @example
+   * ```typescript
+   * import { object, string, number } from 'object-decoder';
+   *
+   * // Define a base decoder with common fields
+   * const baseDecoder = object({
+   *   id: number(),
+   *   createdAt: string()
+   * });
+   *
+   * // Extend with user-specific fields
+   * const userDecoder = baseDecoder.extend(
+   *   object({
+   *     name: string(),
+   *     email: string()
+   *   })
+   * );
+   *
+   * const result = userDecoder.safeParse({
+   *   id: 1,
+   *   createdAt: '2024-01-01',
+   *   name: 'John Doe',
+   *   email: 'john@example.com'
+   * });
+   * // result.value: { id: 1, createdAt: '2024-01-01', name: 'John Doe', email: 'john@example.com' }
+   * ```
    */
   extend<TExtendFieldParsers extends $ObjectFields>(
     other: $Object<TExtendFieldParsers>
@@ -140,6 +174,37 @@ export class $Object<TFieldDecoders extends $ObjectFields> extends Decoder<
     };
   }
 
+  /**
+   * Creates a new object decoder by excluding specified fields from the current decoder.
+   *
+   * This method is useful when you want to create a variant of an existing object decoder
+   * without certain fields. The resulting decoder will only validate and parse the remaining fields.
+   *
+   * @template Keys - The keys of fields to exclude from the decoder
+   * @param keys - One or more field names to exclude from the object decoder
+   * @returns A new object decoder without the specified fields
+   *
+   * @example
+   * ```typescript
+   * // Exclude multiple fields at once
+   * const userDecoder = object({
+   *   id: number(),
+   *   name: string(),
+   *   email: string(),
+   *   password: string(),
+   *   salt: string()
+   * });
+   *
+   * const safeUserDecoder = userDecoder.exclude('password', 'salt');
+   *
+   * const result = safeUserDecoder.safeParse({
+   *   id: 1,
+   *   name: 'Jane',
+   *   email: 'jane@example.com'
+   * });
+   * // result.value: { id: 1, name: 'Jane', email: 'jane@example.com' }
+   * ```
+   */
   public exclude<Keys extends keyof TFieldDecoders>(
     ...keys: Keys[]
   ): $Object<Prettify<Omit<TFieldDecoders, Keys>>> {
@@ -156,6 +221,73 @@ export class $Object<TFieldDecoders extends $ObjectFields> extends Decoder<
   }
 }
 
+/**
+ * Creates an object decoder that validates and parses objects based on a schema of field decoders.
+ *
+ * The `object` function is the primary way to define object validation schemas in this library.
+ * It takes a record of field names mapped to their respective decoders and returns an `$Object`
+ * decoder that can validate input against that schema.
+ *
+ * Each field in the schema must have a corresponding decoder that defines how to validate and
+ * parse that field's value. When parsing an object, all required fields (non-optional) must be
+ * present in the input, and each field's value must pass validation from its corresponding decoder.
+ *
+ * @template TFieldDecoders - A record type mapping field names to their decoder types
+ * @param value - An object where keys are field names and values are decoders that validate those fields
+ * @param options - Optional configuration for the object decoder:
+ *   - `disallowUnknownFields`: When true, parsing will fail if the input object contains fields
+ *     not defined in the schema. When false or omitted, unknown fields are ignored.
+ * @returns An `$Object` decoder instance that can validate and parse objects matching the schema
+ *
+ * @example
+ * ```typescript
+ * import { object, string, number, optional } from 'object-decoder';
+ *
+ * // Define a user object schema
+ * const userDecoder = object({
+ *   id: number(),
+ *   name: string(),
+ *   email: string(),
+ *   age: optional(number())
+ * });
+ *
+ * // Parse valid input
+ * const result = userDecoder.safeParse({
+ *   id: 123,
+ *   name: 'Alice',
+ *   email: 'alice@example.com',
+ *   age: 30
+ * });
+ * // result.success: true
+ * // result.value: { id: 123, name: 'Alice', email: 'alice@example.com', age: 30 }
+ *
+ * // Parse with missing optional field
+ * const result2 = userDecoder.safeParse({
+ *   id: 456,
+ *   name: 'Bob',
+ *   email: 'bob@example.com'
+ * });
+ * // result2.success: true
+ * // result2.value: { id: 456, name: 'Bob', email: 'bob@example.com', age: undefined }
+ *
+ * // Parse with strict mode to disallow unknown fields
+ * const strictDecoder = object(
+ *   {
+ *     id: number(),
+ *     name: string()
+ *   },
+ *   { disallowUnknownFields: true }
+ * );
+ *
+ * const result3 = strictDecoder.safeParse({
+ *   id: 789,
+ *   name: 'Charlie',
+ *   extraField: 'not allowed'
+ * });
+ * // result3.success: false
+ * // result3.error: 'Unknown disallowed fields: "extraField"'
+ * ```
+ */
 export function object<TFieldDecoders extends $ObjectFields>(
   value: TFieldDecoders,
   options?: ObjectDecoderOptions
