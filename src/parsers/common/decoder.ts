@@ -1,21 +1,32 @@
 import { type JSONSchema7 } from 'json-schema';
-import { Ok, type Result } from './result';
+import { Err, Ok, type Result } from './result';
 
 export type InferDecoderOutput<T> = T extends Decoder<infer F> ? F : never;
 
 type TransformFn<In, Out> = (input: In) => Out;
+type RefineFn<TIn, TOut extends TIn = TIn> = (input: TIn) => input is TOut;
 
-export abstract class Decoder<TOutput> {
+export interface RefineOptions {
+  error?: string;
+}
+
+export abstract class Decoder<TDecoderResult> {
   constructor(protected readonly internalIdentifier: string) {}
 
-  protected abstract parseInternal(input: unknown): Result<TOutput>;
+  protected abstract parseInternal(input: unknown): Result<TDecoderResult>;
 
-  public safeParse(input: unknown): Result<TOutput> {
+  public safeParse(input: unknown): Result<TDecoderResult> {
     return this.parseInternal(input);
   }
 
-  // 3. parse wraps safeParse and throws (Slow path only)
-  public parse(input: unknown): TOutput {
+  /**
+   * Parses the given input and returns the processed result if successful.
+   *
+   * @param input The input to be parsed.
+   * @return The parsed and processed output.
+   * @throws Error If the parsing process fails, an error with the failure details is thrown.
+   */
+  public parse(input: unknown): TDecoderResult {
     const result = this.parseInternal(input);
     if (result.success) {
       return result.value;
@@ -23,8 +34,17 @@ export abstract class Decoder<TOutput> {
     throw new Error(result.error);
   }
 
-  public transform<TOut>(fn: TransformFn<TOutput, TOut>): Decoder<TOut> {
-    return new $Transformed<TOutput, TOut>(this, fn);
+  public transform<TTransformResult>(
+    fn: TransformFn<TDecoderResult, TTransformResult>
+  ): Decoder<TTransformResult> {
+    return new $Transformed<TDecoderResult, TTransformResult>(this, fn);
+  }
+
+  public refine<TRefineResult extends TDecoderResult>(
+    refineFn: RefineFn<TDecoderResult, TRefineResult>,
+    options?: RefineOptions
+  ): $Refined<TDecoderResult, TRefineResult> {
+    return new $Refined<TDecoderResult, TRefineResult>(this, refineFn, options);
   }
 
   /**
@@ -61,6 +81,41 @@ export class $Transformed<TInput, TOutput> extends Decoder<TOutput> {
     }
     const refinedResult = this.transformFn(result.value);
     return Ok(refinedResult);
+  }
+
+  override toJSONSchema(): JSONSchema7 {
+    return this.parentDecoder.toJSONSchema();
+  }
+
+  override toString(): string {
+    return `${this.internalIdentifier} [ ${this.parentDecoder.toString()} ]`;
+  }
+}
+
+export class $Refined<
+  TInput,
+  TOutput extends TInput = TInput,
+> extends Decoder<TInput> {
+  constructor(
+    private readonly parentDecoder: Decoder<TInput>,
+    private readonly refineFn: RefineFn<TInput, TOutput>,
+    private readonly options?: RefineOptions
+  ) {
+    super('refined');
+  }
+
+  protected override parseInternal(input: unknown): Result<TOutput> {
+    const result = this.parentDecoder.safeParse(input);
+    if (!result.success) {
+      return result;
+    }
+    const refinedResult = this.refineFn(result.value);
+
+    if (!refinedResult) {
+      return Err(this.options?.error ?? 'Failed to parse input');
+    }
+
+    return Ok(result.value as TOutput);
   }
 
   override toJSONSchema(): JSONSchema7 {

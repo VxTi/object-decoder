@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { type JSONSchema7 } from 'json-schema';
 import { type Prettify } from '../types';
 import { Decoder, type $Infer, type Result, Err, Ok } from './common';
@@ -10,8 +11,8 @@ export interface ObjectDecoderOptions {
   disallowUnknownFields?: boolean;
 }
 
-type ObjectLike = Record<string, unknown>;
-type __Entries = Record<string, Decoder<unknown>>;
+type ObjectLike = Record<string, any>;
+type __Entries = Record<string, Decoder<any>>;
 type __Infer<TFieldDecoders extends __Entries> = Prettify<{
   [K in keyof TFieldDecoders]: $Infer<TFieldDecoders[K]>;
 }>;
@@ -46,6 +47,7 @@ export class $Object<TFieldDecoders extends __Entries> extends Decoder<
 
       if (!validatorResult.success) return validatorResult;
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       result[key] = validatorResult.value;
     }
 

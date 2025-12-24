@@ -34,4 +34,13 @@ describe('string', () => {
     expect(model.parse('abc')).toEqual('abc-refined');
     expect(model.parse('abcd')).toEqual('abcd-refined');
   });
+
+  it('should refine to a specific type', () => {
+    const model = string().refine(input => input === 'test', {
+      error: 'Input must be "test"',
+    });
+
+    expect(model.parse('test')).toEqual('test');
+    expect(() => model.parse('other')).toThrowError('Input must be "test"');
+  });
 });

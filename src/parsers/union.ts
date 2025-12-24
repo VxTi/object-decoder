@@ -35,8 +35,9 @@ export class $Union<
   }
 }
 
-export function union<TDecoders extends Decoder<InferDecoderOutput<TDecoders>>>(
-  decoders: TDecoders[]
-): $Union<TDecoders> {
-  return new $Union<TDecoders>(decoders);
+// eslint-disable-next-line
+export function union<T extends Decoder<any>[]>(
+  decoders: T
+): $Union<T[number]> {
+  return new $Union<T[number]>(decoders);
 }
