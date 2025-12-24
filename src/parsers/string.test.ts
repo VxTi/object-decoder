@@ -27,4 +27,11 @@ describe('string', () => {
   it('should stringify string decoders', () => {
     expect(string().toString()).toEqual('string');
   });
+
+  it('should transform correctly', () => {
+    const model = string().transform(input => `${input}-refined`);
+
+    expect(model.parse('abc')).toEqual('abc-refined');
+    expect(model.parse('abcd')).toEqual('abcd-refined');
+  });
 });

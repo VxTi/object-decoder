@@ -16,4 +16,10 @@ describe('string decoding performance', () => {
   bench('strings with bound limits', () => {
     modelWithBoundLimits.parse('short');
   });
+
+  const transformed = string().transform(input => input.toUpperCase());
+
+  bench('strings with transformation', () => {
+    transformed.parse('test');
+  });
 });
