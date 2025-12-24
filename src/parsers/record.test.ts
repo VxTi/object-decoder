@@ -115,7 +115,7 @@ describe('record', () => {
     };
 
     expect(() => model.parse(input)).toThrowErrorMatchingInlineSnapshot(
-      `[Error: Failed to decode record key '1' -> Key must be 1]`
+      `[Error: Failed to decode record key '1' -> Key must be 0]`
     );
   });
 
