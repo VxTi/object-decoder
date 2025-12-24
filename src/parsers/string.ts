@@ -14,11 +14,9 @@ export class $String extends Decoder<string> {
     super('string');
     if (!options) return;
 
-    if (
-      options.minLength &&
-      options.maxLength &&
-      options.minLength > options.maxLength
-    ) {
+    const { minLength, maxLength } = options;
+
+    if (minLength && maxLength && minLength > maxLength) {
       throw new Error('Minimum length cannot be greater than maximum length');
     }
   }

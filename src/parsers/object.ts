@@ -12,7 +12,9 @@ export interface ObjectDecoderOptions {
 }
 
 type ObjectLike = Record<string, any>;
+
 export type $ObjectFields = Record<string, Decoder<any>>;
+
 type __Infer<TFieldDecoders extends $ObjectFields> = Prettify<{
   [K in keyof TFieldDecoders]: $Infer<TFieldDecoders[K]>;
 }>;
