@@ -1,5 +1,6 @@
 import { type JSONSchema7 } from 'json-schema';
 import { Decoder, Err, Ok, type Result } from './common';
+import { EMAIL_PATTERN, UUID_PATTERN } from './common/patterns';
 
 export interface StringDecoderOptions {
   pattern?: RegExp;
@@ -33,8 +34,12 @@ export class $String extends Decoder<string> {
     const { pattern, maxLength, minLength } = this.options;
 
     if (pattern && !pattern.test(input)) {
+      const source =
+        pattern.source.length > 32 ?
+          `${pattern.source.substring(0, 5)}...${pattern.source.substring(pattern.source.length - 5)}`
+        : pattern.source;
       return Err(
-        `Input string does not match pattern "/${pattern.source}/${pattern.flags}", got "${input}"`
+        `Input string does not match pattern "/${source}/${pattern.flags}", got "${input}"`
       );
     }
 
@@ -70,4 +75,20 @@ export class $String extends Decoder<string> {
 
 export function string(options?: StringDecoderOptions): $String {
   return new $String(options);
+}
+
+export function email(): $String {
+  return new $String({ pattern: EMAIL_PATTERN });
+}
+
+export function uuid(): $String {
+  return new $String({ pattern: UUID_PATTERN });
+}
+
+export function date(): Decoder<Date> {
+  return new $String()
+    .transform(input => new Date(input))
+    .refine(input => input.toString() !== 'Invalid Date', {
+      error: 'Input string is not a valid date',
+    });
 }

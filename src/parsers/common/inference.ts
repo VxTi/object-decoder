@@ -1,4 +1,10 @@
-import { type Prettify } from '../../types';
-import { type Decoder } from './decoder';
+import { type $Object } from '../object';
+import { type InferDecoderResult } from './decoder';
 
-export type $Infer<T> = T extends Decoder<infer F> ? Prettify<F> : never;
+type InferObject<TDecoderEntries> = {
+  [K in keyof TDecoderEntries]: $Infer<TDecoderEntries[K]>;
+} & {};
+
+export type $Infer<TDecoder> =
+  TDecoder extends $Object<infer F> ? InferObject<F>
+  : InferDecoderResult<TDecoder>;

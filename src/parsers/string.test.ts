@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { string } from './string';
+import { date, string, uuid } from './string';
 
 describe('string', () => {
   it('should parse a regular string properly', () => {
@@ -43,6 +43,33 @@ describe('string', () => {
     expect(model.parse('test')).toEqual('test');
     expect(() => model.parse('other')).toThrowErrorMatchingInlineSnapshot(
       `[Error: Input must be "test"]`
+    );
+  });
+
+  it('parses dates correctly', () => {
+    const model = date();
+
+    expect(model.parse('2023-01-01')).toEqual(new Date('2023-01-01'));
+    expect(model.parse('2023-01-01T00:00:00')).toEqual(
+      new Date('2023-01-01T00:00:00')
+    );
+    expect(() =>
+      model.parse('invalid-date')
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Input string is not a valid date]`
+    );
+  });
+
+  it('parses uuids correctly', () => {
+    const model = uuid();
+
+    expect(model.parse('123e4567-e89b-12d3-a456-426614174000')).toEqual(
+      '123e4567-e89b-12d3-a456-426614174000'
+    );
+    expect(() =>
+      model.parse('invalid-uuid')
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Input string does not match pattern "/^[0-9...{12}$/", got "invalid-uuid"]`
     );
   });
 });
