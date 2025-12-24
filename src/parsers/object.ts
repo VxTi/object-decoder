@@ -140,7 +140,7 @@ export class $Object<TFieldDecoders extends $ObjectFields> extends Decoder<
    * // result.value: { id: 1, createdAt: '2024-01-01', name: 'John Doe', email: 'john@example.com' }
    * ```
    */
-  extend<TExtendFieldParsers extends $ObjectFields>(
+  public extend<TExtendFieldParsers extends $ObjectFields>(
     other: $Object<TExtendFieldParsers>
   ): $Object<Prettify<TFieldDecoders & TExtendFieldParsers>> {
     return new $Object<Prettify<TFieldDecoders & TExtendFieldParsers>>(

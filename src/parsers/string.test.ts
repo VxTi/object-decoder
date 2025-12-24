@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { date, string, uuid } from './string';
+import { date, email, string, uuid } from './string';
 
 describe('string', () => {
   it('should parse a regular string properly', () => {
@@ -13,7 +13,7 @@ describe('string', () => {
   it('should throw an error if the input string does not match the pattern', () => {
     const model = string({ pattern: /^[a-zA-Z0-9]+$/ });
     expect(() => model.parse('test 123')).toThrowErrorMatchingInlineSnapshot(
-      `[Error: Input string does not match pattern "/^[a-zA-Z0-9]+$/", got "test 123"]`
+      `[Error: Input string does not match pattern, got "test 123"]`
     );
   });
 
@@ -69,7 +69,18 @@ describe('string', () => {
     expect(() =>
       model.parse('invalid-uuid')
     ).toThrowErrorMatchingInlineSnapshot(
-      `[Error: Input string does not match pattern "/^[0-9...{12}$/", got "invalid-uuid"]`
+      `[Error: Input string does not match pattern "UUID", got "invalid-uuid"]`
+    );
+  });
+
+  it('parses emails correctly', () => {
+    const model = email();
+
+    expect(model.parse('test@example.com')).toEqual('test@example.com');
+    expect(() =>
+      model.parse('invalid-email')
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Input string does not match pattern "email", got "invalid-email"]`
     );
   });
 });

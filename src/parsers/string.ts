@@ -4,6 +4,7 @@ import { EMAIL_PATTERN, UUID_PATTERN } from './common/patterns';
 
 export interface StringDecoderOptions {
   pattern?: RegExp;
+  patternName?: string;
   minLength?: number;
   maxLength?: number;
 }
@@ -31,15 +32,11 @@ export class $String extends Decoder<string> {
       return Ok(input);
     }
 
-    const { pattern, maxLength, minLength } = this.options;
+    const { pattern, maxLength, minLength, patternName } = this.options;
 
     if (pattern && !pattern.test(input)) {
-      const source =
-        pattern.source.length > 32 ?
-          `${pattern.source.substring(0, 5)}...${pattern.source.substring(pattern.source.length - 5)}`
-        : pattern.source;
       return Err(
-        `Input string does not match pattern "/${source}/${pattern.flags}", got "${input}"`
+        `Input string does not match pattern${patternName ? ` "${patternName}"` : ''}, got "${input}"`
       );
     }
 
@@ -78,11 +75,11 @@ export function string(options?: StringDecoderOptions): $String {
 }
 
 export function email(): $String {
-  return new $String({ pattern: EMAIL_PATTERN });
+  return new $String({ pattern: EMAIL_PATTERN, patternName: 'email' });
 }
 
 export function uuid(): $String {
-  return new $String({ pattern: UUID_PATTERN });
+  return new $String({ pattern: UUID_PATTERN, patternName: 'UUID' });
 }
 
 export function date(): Decoder<Date> {
