@@ -1,5 +1,5 @@
 import { type JSONSchema7 } from 'json-schema';
-import { Decoder, type InferDecoderOutput } from './common';
+import { Decoder, type Result, type InferDecoderOutput } from './common';
 
 export class $Optional<
   TDecoder extends Decoder<InferDecoderOutput<TDecoder>>,
@@ -8,10 +8,17 @@ export class $Optional<
     super('optional');
   }
 
-  parse(input: unknown): InferDecoderOutput<TDecoder> | undefined {
-    if (!input) return;
+  protected parseInternal(
+    input: unknown
+  ): Result<InferDecoderOutput<TDecoder> | undefined> {
+    if (!input) {
+      return {
+        success: true,
+        value: undefined,
+      };
+    }
 
-    return this.decoder.parse(input);
+    return this.decoder.safeParse(input);
   }
 
   toString(): string {

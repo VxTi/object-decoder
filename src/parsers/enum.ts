@@ -1,29 +1,37 @@
 import { type JSONSchema7 } from 'json-schema';
-import { Decoder } from './common';
+import { Decoder, type Result } from './common';
 
-export type EnumType = string | number | boolean;
+type StringEnum = Record<string, string>;
 
-export class $Enum<T extends EnumType> extends Decoder<T> {
+type EnumValues<T> =
+  T extends readonly (infer U)[] ? U
+  : T extends StringEnum ? T[keyof T]
+  : never;
+
+export class $Enum<T extends string> extends Decoder<T> {
   constructor(private readonly values: T[]) {
     super('enum');
   }
 
-  public parse(input: unknown): T {
-    if (
-      typeof input !== 'string' &&
-      typeof input !== 'number' &&
-      typeof input !== 'boolean'
-    ) {
-      throw new Error(
-        `Expected enum of ${this.values.join(', ')}, got ${typeof input}`
-      );
+  protected parseInternal(input: unknown): Result<T> {
+    if (typeof input !== 'string') {
+      return {
+        success: false,
+        error: `Expected enum of ${this.values.join(', ')}, got ${typeof input}`,
+      };
     }
 
     if (!this.values.includes(input as T)) {
-      throw new Error(`Invalid enum value: ${input}`);
+      return {
+        success: false,
+        error: `Invalid enum value: ${input}`,
+      };
     }
 
-    return input as T;
+    return {
+      success: true,
+      value: input as T,
+    };
   }
 
   public toString(): string {
@@ -36,8 +44,32 @@ export class $Enum<T extends EnumType> extends Decoder<T> {
       enum: this.values,
     };
   }
-}
 
-export function enumerate<T extends EnumType>(type: T[]): $Enum<T> {
-  return new $Enum<T>(type);
+  public exclude<Keys extends T>(...keys: Keys[]): $Enum<Exclude<T, Keys>> {
+    const values = this.values.filter(value => !keys.includes(value as Keys));
+
+    return new $Enum<Exclude<T, Keys>>(values as Exclude<T, Keys>[]);
+  }
+
+  public include<A extends string>(input: A): $Enum<T | A>;
+  public include<A extends readonly string[]>(input: A): $Enum<T | A[number]>;
+  public include<A extends StringEnum>(input: A): $Enum<T | EnumValues<A>>;
+
+  public include<A extends string | readonly string[] | StringEnum>(
+    input: A
+  ): $Enum<string> {
+    const values: string[] =
+      Array.isArray(input) ? (input as string[])
+      : typeof input === 'string' ? [input]
+      : Object.values(input);
+
+    return new $Enum<string>([...this.values, ...values]);
+  }
+}
+export function enumerate<T extends readonly string[] | StringEnum>(
+  input: T
+): $Enum<EnumValues<T>> {
+  const values = Array.isArray(input) ? input : Object.values(input);
+
+  return new $Enum(values as EnumValues<T>[]);
 }

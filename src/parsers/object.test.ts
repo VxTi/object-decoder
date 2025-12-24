@@ -62,9 +62,28 @@ describe('object', () => {
       }),
     });
 
-    const model = firstModel.extend(secondModel);
+    const merged = firstModel.extend(secondModel);
 
-    expect(model.parse(input)).toEqual(input);
+    expect(merged.parse(input)).toEqual(input);
+  });
+
+  it('omits keys from decoder correctly', () => {
+    const model = object(
+      {
+        omittedField: string(),
+        persistent: number(),
+      },
+      { disallowUnknownFields: true }
+    );
+
+    const omitted = model.exclude('omittedField');
+
+    expect(() =>
+      omitted.parse({
+        omittedField: 'something',
+        persistent: 1,
+      })
+    ).toThrowError('Unknown fields: "omittedField"');
   });
 
   it('respects optionality of fields', () => {

@@ -1,37 +1,24 @@
 import { type JSONSchema7 } from 'json-schema';
-
-export interface SuccessResult<TOutput> {
-  success: true;
-  value: TOutput;
-}
-
-export interface ErrorResult {
-  success: false;
-  error: string;
-}
-
-export type SafeParseResult<TOutput> = SuccessResult<TOutput> | ErrorResult;
+import { type Result } from './result';
 
 export type InferDecoderOutput<T> = T extends Decoder<infer F> ? F : never;
 
 export abstract class Decoder<TOutput> {
   constructor(protected readonly internalIdentifier: string) {}
 
-  abstract parse(input: unknown): TOutput;
+  protected abstract parseInternal(input: unknown): Result<TOutput>;
 
-  /**
-   * Safely parses input and returns a DecoderResult.
-   */
-  safeParse(input: unknown): SafeParseResult<TOutput> {
-    try {
-      const parsed = this.parse(input);
-      return { success: true, value: parsed };
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+  public safeParse(input: unknown): Result<TOutput> {
+    return this.parseInternal(input);
+  }
 
-      return { success: false, error: errorMessage };
+  // 3. parse wraps safeParse and throws (Slow path only)
+  public parse(input: unknown): TOutput {
+    const result = this.parseInternal(input);
+    if (result.success) {
+      return result.value;
     }
+    throw new Error(result.error);
   }
 
   /**

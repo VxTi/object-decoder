@@ -1,5 +1,5 @@
 import { type JSONSchema7 } from 'json-schema';
-import { Decoder, type InferDecoderOutput } from './common';
+import { Decoder, type InferDecoderOutput, type Result } from './common';
 
 export class $Union<
   TDecoders extends Decoder<InferDecoderOutput<TDecoders>>,
@@ -8,16 +8,20 @@ export class $Union<
     super('union');
   }
 
-  public parse(input: unknown): InferDecoderOutput<TDecoders> {
+  protected parseInternal(
+    input: unknown
+  ): Result<InferDecoderOutput<TDecoders>> {
     for (const decoder of this.decoders) {
-      try {
-        return decoder.parse(input);
-      } catch {
-        // This can happen, we'll just continue to the next one
+      const result = decoder.safeParse(input);
+      if (result.success) {
+        return result;
       }
     }
 
-    throw new Error(`Failed to parse union, got: "${typeof input}"`);
+    return {
+      success: false,
+      error: `Failed to parse union, got: "${typeof input}"`,
+    };
   }
 
   public toString(): string {

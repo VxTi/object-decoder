@@ -1,5 +1,5 @@
 import { type JSONSchema7 } from 'json-schema';
-import { Decoder } from './common';
+import { Decoder, type Result } from './common';
 
 export interface NumberDecoderOptions {
   min?: number;
@@ -11,40 +11,61 @@ export class $Number extends Decoder<number> {
     super('number');
   }
 
-  public parse(input: unknown): number {
-    const parsed: number = this.tryExtractNumber(input);
+  protected parseInternal(input: unknown): Result<number> {
+    const extractedNumberResult: Result<number> = this.tryExtractNumber(input);
+
+    if (!extractedNumberResult.success) return extractedNumberResult;
+
+    const parsed = extractedNumberResult.value;
 
     if (this.options?.min && parsed < this.options.min) {
-      throw new Error(
-        `Number is less than minimum value ${this.options.min}, got ${input}`
-      );
+      return {
+        success: false,
+        error: `Number is less than minimum value ${this.options.min}, got ${input}`,
+      };
     }
 
     if (this.options?.max && parsed > this.options.max) {
-      throw new Error(
-        `Number is greater than maximum value ${this.options.max}, got ${input}`
-      );
+      return {
+        success: false,
+        error: `Number is greater than maximum value ${this.options.max}, got ${input}`,
+      };
     }
 
-    return parsed;
+    return {
+      success: true,
+      value: parsed,
+    };
   }
 
-  private tryExtractNumber(input: unknown): number {
+  private tryExtractNumber(input: unknown): Result<number> {
     if (typeof input === 'number') {
-      return input;
+      return {
+        success: true,
+        value: input,
+      };
     }
 
     if (typeof input !== 'string') {
-      throw new Error(`Expected string input, got "${typeof input}"`);
+      return {
+        success: false,
+        error: `Expected string input, got "${typeof input}"`,
+      };
     }
 
     const number = parseFloat(input);
 
     if (isNaN(number)) {
-      throw new Error(`Expected number, got "${input}"`);
+      return {
+        success: false,
+        error: `Expected number, got "${input}"`,
+      };
     }
 
-    return number;
+    return {
+      success: true,
+      value: number,
+    };
   }
 
   public toString(): string {

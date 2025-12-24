@@ -20,9 +20,10 @@
   "scripts": {
     "clean": "rm -rf ./dist",
     "build": "tsc --p ./tsconfig.release.json",
-    "check:types": "tsc --noEmit",
+    "check:types": "tsc --noEmit --inlineSourceMap",
     "lint": "eslint --fix \"./src/**/*.ts\" --cache --max-warnings 0",
     "test": "vitest run",
+    "test:bench": "vitest bench",
     "sanity": "npm run lint && npm run check:types && npm run test",
     "prepublishOnly": "npm run clean; npm run sanity && npm run build"
   },

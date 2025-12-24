@@ -1,5 +1,10 @@
 import { type JSONSchema7 } from 'json-schema';
-import { Decoder, type InferDecoderOutput } from './common';
+import {
+  Decoder,
+  type InferDecoderOutput,
+  type Result,
+  type SuccessResult,
+} from './common';
 
 export class $Array<
   TDecoder extends Decoder<InferDecoderOutput<TDecoder>>,
@@ -8,37 +13,79 @@ export class $Array<
     super('array');
   }
 
-  public parse(input: unknown): InferDecoderOutput<TDecoder>[] {
-    const array: unknown[] = this.tryExtractArray(input);
+  protected parseInternal(
+    input: unknown
+  ): Result<InferDecoderOutput<TDecoder>[]> {
+    const arrayResult: Result<unknown[]> = this.tryExtractArray(input);
 
-    return array.map(item => this.decoder.parse(item));
+    if (!arrayResult.success) {
+      return arrayResult;
+    }
+
+    const results = arrayResult.value.map(item => this.decoder.safeParse(item));
+
+    const failedItems = results.filter(result => !result.success);
+
+    if (failedItems.length > 0) {
+      return {
+        success: false,
+        error: `One or more items failed to parse:\n${failedItems
+          .map(result => result.error)
+          .join(',\n')}`,
+      };
+    }
+
+    const value = (
+      results as SuccessResult<InferDecoderOutput<TDecoder>>[]
+    ).map(result => result.value);
+
+    return { success: true, value };
   }
 
-  private tryExtractArray(input: unknown): unknown[] {
+  private tryExtractArray(input: unknown): Result<unknown[]> {
     if (Array.isArray(input)) {
-      return input;
+      return { success: true, value: input };
     }
 
     if (typeof input !== 'string') {
-      throw new Error(`Expected array-like string, got "${typeof input}"`);
+      return {
+        success: false,
+        error: `Expected array-like string, got "${typeof input}"`,
+      };
     }
-    const parsed: unknown = this.tryParseJsonArray(input);
+    const arrayExtractionResult: Result<unknown> =
+      this.tryParseStringArray(input);
 
-    if (!Array.isArray(parsed)) {
-      throw new Error(`Expected array, got ${typeof parsed}`);
+    if (!arrayExtractionResult.success) {
+      return arrayExtractionResult;
     }
 
-    return parsed;
+    if (!Array.isArray(arrayExtractionResult.value)) {
+      return {
+        success: false,
+        error: `Expected array, got ${typeof arrayExtractionResult.value}`,
+      };
+    }
+
+    return {
+      success: true,
+      value: arrayExtractionResult.value,
+    };
   }
 
-  private tryParseJsonArray(input: string): unknown {
+  private tryParseStringArray(input: string): Result<unknown> {
     try {
-      return JSON.parse(input);
+      return {
+        success: true,
+        value: JSON.parse(input),
+      };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      throw new Error(`Failed to parse array: ${message}`, {
-        cause: error,
-      });
+
+      return {
+        success: false,
+        error: `Failed to parse array: ${message}`,
+      };
     }
   }
 

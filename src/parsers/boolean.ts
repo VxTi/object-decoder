@@ -1,21 +1,27 @@
 import { type JSONSchema7 } from 'json-schema';
-import { Decoder } from './common';
+import { Decoder, type Result } from './common';
 
 export class $Boolean extends Decoder<boolean> {
-  public parse(input: unknown): boolean {
-    if (typeof input === 'boolean') return input;
+  protected parseInternal(input: unknown): Result<boolean> {
+    if (typeof input === 'boolean') return { success: true, value: input };
 
     if (typeof input !== 'string') {
-      throw new Error(`Expected boolean, got ${input}`);
+      return {
+        success: false,
+        error: `Expected boolean, got ${input}`,
+      };
     }
 
     const lowercase = input.toLowerCase();
 
     if (lowercase !== 'true' && lowercase !== 'false') {
-      throw new Error(`Expected boolean, got "${input}"`);
+      return {
+        success: false,
+        error: `Expected boolean, got "${input}"`,
+      };
     }
 
-    return lowercase === 'true';
+    return { success: true, value: lowercase === 'true' };
   }
 
   public toString(): string {
