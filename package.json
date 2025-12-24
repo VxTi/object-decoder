@@ -20,7 +20,7 @@
   "scripts": {
     "clean": "rm -rf ./dist",
     "build": "tsc --p ./tsconfig.release.json",
-    "check:types": "tsc --noEmit --inlineSourceMap",
+    "check:types": "tsc --noEmit",
     "lint": "eslint --fix \"./src/**/*.ts\" --cache --max-warnings 0",
     "test": "vitest run",
     "test:bench": "vitest bench",

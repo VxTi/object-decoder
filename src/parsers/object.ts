@@ -1,5 +1,5 @@
 import { type JSONSchema7 } from 'json-schema';
-import { type Prettify } from '../utils';
+import { type Prettify } from '../types';
 import { Decoder, type $Infer, type Result } from './common';
 import { $Optional } from './optional';
 
