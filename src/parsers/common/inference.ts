@@ -1,5 +1,5 @@
-import { type $Object } from '../object';
-import { type InferDecoderResult } from './decoder';
+import { type $Object } from '../object.js';
+import { type InferDecoderResult } from './decoder.js';
 
 type InferObject<TDecoderEntries> = {
   [K in keyof TDecoderEntries]: $Infer<TDecoderEntries[K]>;

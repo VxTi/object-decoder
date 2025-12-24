@@ -1,5 +1,10 @@
 import { type JSONSchema7 } from 'json-schema';
-import { Decoder, type Result, type InferDecoderResult, Ok } from './common';
+import {
+  Decoder,
+  type Result,
+  type InferDecoderResult,
+  Ok,
+} from './common/index.js';
 
 export class $Optional<
   TDecoder extends Decoder<InferDecoderResult<TDecoder>>,

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { boolean } from './boolean';
-import { type ErrorResult } from './common';
+import { type ErrorResult } from './common/index.js';
 import { enumerate } from './enum';
 import { number } from './number';
 import { object } from './object';

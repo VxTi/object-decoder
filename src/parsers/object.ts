@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { type JSONSchema7 } from 'json-schema';
-import { type Prettify } from '../types';
-import { Decoder, type $Infer, type Result, Err, Ok } from './common';
-import { $Optional } from './optional';
+import { type Prettify } from '../types.d.js';
+import { Decoder, type $Infer, type Result, Err, Ok } from './common/index.js';
+import { $Optional } from './optional.js';
 
 export interface ObjectDecoderOptions {
   /**

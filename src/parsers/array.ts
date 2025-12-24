@@ -5,7 +5,7 @@ import {
   Ok,
   type InferDecoderResult,
   type Result,
-} from './common';
+} from './common/index.js';
 
 export class $Array<
   TDecoder extends Decoder<InferDecoderResult<TDecoder>>,

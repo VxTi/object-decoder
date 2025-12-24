@@ -1,6 +1,12 @@
 import { type JSONSchema7 } from 'json-schema';
-import { Decoder, Err, Ok, type Result } from './common';
-import { EMAIL_PATTERN, UUID_PATTERN } from './common/patterns';
+import {
+  Decoder,
+  Err,
+  Ok,
+  type Result,
+  EMAIL_PATTERN,
+  UUID_PATTERN,
+} from './common/index.js';
 
 export interface StringDecoderOptions {
   pattern?: RegExp;

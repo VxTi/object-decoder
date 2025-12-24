@@ -1,3 +1,4 @@
-export * from './decoder';
-export * from './inference';
-export * from './result';
+export * from './decoder.js';
+export * from './inference.js';
+export * from './result.js';
+export * from './patterns.js';

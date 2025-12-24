@@ -1,6 +1,6 @@
 import { type JSONSchema7 } from 'json-schema';
-import { ParsingError } from './errors';
-import { Err, Ok, type Result } from './result';
+import { ParsingError } from './errors.js';
+import { Err, Ok, type Result } from './result.js';
 
 export type InferDecoderResult<T> = T extends Decoder<infer F> ? F : never;
 
