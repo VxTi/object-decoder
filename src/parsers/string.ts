@@ -1,5 +1,5 @@
 import { type JSONSchema7 } from 'json-schema';
-import { Decoder, type Result } from './common';
+import { Decoder, Err, Ok, type Result } from './common';
 
 export interface StringDecoderOptions {
   pattern?: RegExp;
@@ -25,38 +25,34 @@ export class $String extends Decoder<string> {
 
   protected parseInternal(input: unknown): Result<string> {
     if (typeof input !== 'string') {
-      return {
-        success: false,
-        error: `Expected string, got ${typeof input}`,
-      };
+      return Err(`Expected string, got ${typeof input}`);
     }
 
-    if (!this.options) return { success: true, value: input };
+    if (!this.options) {
+      return Ok(input);
+    }
 
     const { pattern, maxLength, minLength } = this.options;
 
     if (pattern && !pattern.test(input)) {
-      return {
-        success: false,
-        error: `Input string does not match pattern "/${pattern.source}/${pattern.flags}", got "${input}"`,
-      };
+      return Err(
+        `Input string does not match pattern "/${pattern.source}/${pattern.flags}", got "${input}"`
+      );
     }
 
     if (minLength && input.length < minLength) {
-      return {
-        success: false,
-        error: `Input string is shorter than minimum length ${minLength}, got "${input}"`,
-      };
+      return Err(
+        `Input string is shorter than minimum length ${minLength}, got "${input}"`
+      );
     }
 
     if (maxLength && input.length > maxLength) {
-      return {
-        success: false,
-        error: `Input string is longer than maximum length ${maxLength}, got "${input}"`,
-      };
+      return Err(
+        `Input string is longer than maximum length ${maxLength}, got "${input}"`
+      );
     }
 
-    return { success: true, value: input };
+    return Ok(input);
   }
 
   public toString(): string {

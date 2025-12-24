@@ -1,14 +1,21 @@
 import { type JSONSchema7 } from 'json-schema';
-import { Decoder, type Result } from './common';
+import { Decoder, Err, Ok, type Result } from './common';
 
 export interface NumberDecoderOptions {
   min?: number;
   max?: number;
 }
 
-export class $Number extends Decoder<number> {
-  constructor(readonly options?: NumberDecoderOptions) {
-    super('number');
+/**
+ * Base class for number decoders
+ */
+abstract class $NumberBase extends Decoder<number> {
+  protected constructor(
+    internalIdentifier: string,
+    private readonly numberParsingFn: (input: string) => number,
+    protected readonly options?: NumberDecoderOptions
+  ) {
+    super(internalIdentifier);
   }
 
   protected parseInternal(input: unknown): Result<number> {
@@ -19,57 +26,46 @@ export class $Number extends Decoder<number> {
     const parsed = extractedNumberResult.value;
 
     if (this.options?.min && parsed < this.options.min) {
-      return {
-        success: false,
-        error: `Number is less than minimum value ${this.options.min}, got ${input}`,
-      };
+      return Err(
+        `Number is less than minimum value ${this.options.min}, got ${input}`
+      );
     }
 
     if (this.options?.max && parsed > this.options.max) {
-      return {
-        success: false,
-        error: `Number is greater than maximum value ${this.options.max}, got ${input}`,
-      };
+      return Err(
+        `Number is greater than maximum value ${this.options.max}, got ${input}`
+      );
     }
 
-    return {
-      success: true,
-      value: parsed,
-    };
+    return Ok(parsed);
   }
 
   private tryExtractNumber(input: unknown): Result<number> {
     if (typeof input === 'number') {
-      return {
-        success: true,
-        value: input,
-      };
+      return Ok(input);
     }
 
     if (typeof input !== 'string') {
-      return {
-        success: false,
-        error: `Expected string input, got "${typeof input}"`,
-      };
+      return Err(`Expected string input, got "${typeof input}"`);
     }
 
-    const number = parseFloat(input);
+    const number = this.numberParsingFn(input);
 
     if (isNaN(number)) {
-      return {
-        success: false,
-        error: `Expected number, got "${input}"`,
-      };
+      return Err(`Expected number, got "${input}"`);
     }
 
-    return {
-      success: true,
-      value: number,
-    };
+    return Ok(number);
   }
 
   public toString(): string {
     return this.internalIdentifier;
+  }
+}
+
+export class $Number extends $NumberBase {
+  constructor(options?: NumberDecoderOptions) {
+    super('number', parseFloat, options);
   }
 
   public toJSONSchema(): JSONSchema7 {
@@ -83,6 +79,29 @@ export class $Number extends Decoder<number> {
   }
 }
 
+export class $Int extends $NumberBase {
+  constructor(options?: NumberDecoderOptions) {
+    super('int', parseInt, options);
+  }
+
+  override toJSONSchema(): JSONSchema7 {
+    const { min, max } = this.options ?? {};
+
+    return {
+      type: 'integer',
+      ...(min ? { minimum: min } : {}),
+      ...(max ? { maximum: max } : {}),
+    };
+  }
+}
+
 export function number(options?: NumberDecoderOptions): $Number {
   return new $Number(options);
+}
+
+/**
+ * Constructs an integer decoder
+ */
+export function int(options?: NumberDecoderOptions): $Int {
+  return new $Int(options);
 }

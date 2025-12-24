@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { number } from './number';
+import { int, number } from './number';
 
 describe('number', () => {
   it('should parse a regular number properly', () => {
@@ -31,5 +31,25 @@ describe('number', () => {
     const decoder = number();
 
     expect(decoder.toString()).toMatchInlineSnapshot(`"number"`);
+  });
+
+  it('should parse numbers like integers', () => {
+    const model = int();
+
+    expect(model.parse('123.5')).toEqual(123);
+  });
+
+  it('should produce the correct JSON schema', () => {
+    expect(number().toJSONSchema()).toMatchInlineSnapshot(`
+      {
+        "type": "number",
+      }
+    `);
+
+    expect(int().toJSONSchema()).toMatchInlineSnapshot(`
+      {
+        "type": "integer",
+      }
+    `);
   });
 });

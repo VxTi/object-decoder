@@ -1,6 +1,6 @@
 import { type JSONSchema7 } from 'json-schema';
 import { type Prettify } from '../types';
-import { Decoder, type $Infer, type Result } from './common';
+import { Decoder, type $Infer, type Result, Err, Ok } from './common';
 import { $Optional } from './optional';
 
 export interface ObjectDecoderOptions {
@@ -40,10 +40,7 @@ export class $Object<TFieldDecoders extends __Entries> extends Decoder<
         !(key in extractionResult.value) &&
         !(validator instanceof $Optional)
       ) {
-        return {
-          success: false,
-          error: `"Missing required field: "${key}"`,
-        };
+        return Err(`"Missing required field: "${key}"`);
       }
       const validatorResult = validator.safeParse(extractionResult.value[key]);
 
@@ -57,43 +54,25 @@ export class $Object<TFieldDecoders extends __Entries> extends Decoder<
         k => !(k in this.fieldDecoders)
       );
       if (unknownFields.length > 0) {
-        return {
-          success: false,
-          error: `Unknown fields: "${unknownFields.join(', ')}"`,
-        };
+        return Err(`Unknown fields: "${unknownFields.join(', ')}"`);
       }
     }
 
-    return {
-      success: true,
-      value: result as __Infer<TFieldDecoders>,
-    };
+    return Ok(result as __Infer<TFieldDecoders>);
   }
 
   private extractObject(input: unknown): Result<ObjectLike> {
     if (!input) {
-      return {
-        success: false,
-        error: `Expected object with key, got ${typeof input}`,
-      };
+      return Err(`Expected object with key, got ${typeof input}`);
     }
     if (typeof input === 'object') {
-      return {
-        success: true,
-        value: input as ObjectLike,
-      };
+      return Ok(input as ObjectLike);
     }
 
     try {
-      return {
-        success: true,
-        value: JSON.parse(input as string) as ObjectLike,
-      };
+      return Ok(JSON.parse(input as string) as ObjectLike);
     } catch {
-      return {
-        success: false,
-        error: `Expected object, got ${typeof input}`,
-      };
+      return Err(`Expected object, got ${typeof input}`);
     }
   }
 

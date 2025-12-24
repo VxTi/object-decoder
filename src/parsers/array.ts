@@ -1,6 +1,8 @@
 import { type JSONSchema7 } from 'json-schema';
 import {
   Decoder,
+  Err,
+  Ok,
   type InferDecoderOutput,
   type Result,
   type SuccessResult,
@@ -27,31 +29,27 @@ export class $Array<
     const failedItems = results.filter(result => !result.success);
 
     if (failedItems.length > 0) {
-      return {
-        success: false,
-        error: `One or more items failed to parse:\n${failedItems
+      return Err(
+        `One or more items failed to parse:\n${failedItems
           .map(result => result.error)
-          .join(',\n')}`,
-      };
+          .join(',\n')}`
+      );
     }
 
     const value = (
       results as SuccessResult<InferDecoderOutput<TDecoder>>[]
     ).map(result => result.value);
 
-    return { success: true, value };
+    return Ok(value);
   }
 
   private tryExtractArray(input: unknown): Result<unknown[]> {
     if (Array.isArray(input)) {
-      return { success: true, value: input };
+      return Ok(input);
     }
 
     if (typeof input !== 'string') {
-      return {
-        success: false,
-        error: `Expected array-like string, got "${typeof input}"`,
-      };
+      return Err(`Expected array-like string, got "${typeof input}"`);
     }
     const arrayExtractionResult: Result<unknown> =
       this.tryParseStringArray(input);
@@ -61,31 +59,19 @@ export class $Array<
     }
 
     if (!Array.isArray(arrayExtractionResult.value)) {
-      return {
-        success: false,
-        error: `Expected array, got ${typeof arrayExtractionResult.value}`,
-      };
+      return Err(`Expected array, got ${typeof arrayExtractionResult.value}`);
     }
 
-    return {
-      success: true,
-      value: arrayExtractionResult.value,
-    };
+    return Ok(arrayExtractionResult.value);
   }
 
   private tryParseStringArray(input: string): Result<unknown> {
     try {
-      return {
-        success: true,
-        value: JSON.parse(input),
-      };
+      return Ok(JSON.parse(input));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
 
-      return {
-        success: false,
-        error: `Failed to parse array: ${message}`,
-      };
+      return Err(`Failed to parse array: ${message}`);
     }
   }
 

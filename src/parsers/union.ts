@@ -1,5 +1,5 @@
 import { type JSONSchema7 } from 'json-schema';
-import { Decoder, type InferDecoderOutput, type Result } from './common';
+import { Decoder, Err, type InferDecoderOutput, type Result } from './common';
 
 export class $Union<
   TDecoders extends Decoder<InferDecoderOutput<TDecoders>>,
@@ -18,10 +18,7 @@ export class $Union<
       }
     }
 
-    return {
-      success: false,
-      error: `Failed to parse union, got: "${typeof input}"`,
-    };
+    return Err(`Failed to parse union, got: "${typeof input}"`);
   }
 
   public toString(): string {

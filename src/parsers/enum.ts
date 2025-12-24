@@ -1,5 +1,5 @@
 import { type JSONSchema7 } from 'json-schema';
-import { Decoder, type Result } from './common';
+import { Decoder, Err, Ok, type Result } from './common';
 
 type StringEnum = Record<string, string>;
 
@@ -15,23 +15,16 @@ export class $Enum<T extends string> extends Decoder<T> {
 
   protected parseInternal(input: unknown): Result<T> {
     if (typeof input !== 'string') {
-      return {
-        success: false,
-        error: `Expected enum of ${this.values.join(', ')}, got ${typeof input}`,
-      };
+      return Err(
+        `Expected enum of ${this.values.join(', ')}, got ${typeof input}`
+      );
     }
 
     if (!this.values.includes(input as T)) {
-      return {
-        success: false,
-        error: `Invalid enum value: ${input}`,
-      };
+      return Err(`Invalid enum value: ${input}`);
     }
 
-    return {
-      success: true,
-      value: input as T,
-    };
+    return Ok(input as T);
   }
 
   public toString(): string {
