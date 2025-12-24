@@ -21,7 +21,8 @@
     "emitDeclarationOnly": false,
     "moduleDetection": "force",
     "noImplicitOverride": true,
-    "sourceRoot": "./src"
+    "sourceRoot": "./src",
+    "inlineSourceMap": true
   },
   "include": ["src/**/*"],
   "exclude": ["dist", "node_modules"]

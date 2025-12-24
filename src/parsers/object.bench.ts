@@ -7,37 +7,59 @@ import { object } from './object';
 import { optional } from './optional';
 import { string } from './string';
 
-describe('performance', () => {
+describe('object decoding performance', () => {
+  const image = object({
+    url: string({ pattern: /^https?:\/\/\S+$/ }),
+  });
   const schema = object({
+    type: literal('COMPONENT'),
     firstField: string({ pattern: /test/ }),
     maybe: optional(string()),
     nested: object({
       test: string(),
     }),
     somethingElse: number(),
-    test: literal('hello'),
     cars: array(
       object({
         name: string(),
+        image,
       })
     ),
   });
-  bench('should perform well with large schemas', () => {
+
+  bench('semi-large schemas', () => {
     const input: $Infer<typeof schema> = {
+      type: 'COMPONENT',
       firstField: 'test',
       maybe: 'hello!',
       nested: {
         test: 'test',
       },
       somethingElse: 20,
-      test: 'hello',
       cars: [
         {
           name: 'test',
+          image: {
+            url: 'http://localhost',
+          },
         },
       ],
     };
 
     schema.parse(input);
+  });
+
+  const emptySchema = object({});
+  bench('empty schemas', () => {
+    emptySchema.parse({});
+  });
+
+  const simpleSchema = object({ type: literal('COMPONENT') });
+  bench('simple schemas', () => {
+    const input: $Infer<typeof simpleSchema> = {
+      type: 'COMPONENT',
+    };
+
+    simpleSchema.parse(input);
   });
 });

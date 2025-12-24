@@ -1,7 +1,7 @@
 import { bench, describe } from 'vitest';
 import { boolean } from './boolean';
 
-describe('boolean performance', () => {
+describe('boolean decoding performance', () => {
   const model = boolean();
 
   bench('boolean parsing', () => {
