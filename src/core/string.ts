@@ -5,8 +5,8 @@ import {
   Ok,
   type Result,
   type $Refined,
+  patterns,
 } from '../common/index.js';
-import { $ } from '../index.js';
 
 export interface StringDecoderOptions {
   /**
@@ -194,7 +194,7 @@ export function string(options?: StringDecoderOptions): $String {
  * });
  */
 export function email(): $Refined<string, string> {
-  return new $String().pattern($.patterns.email, 'email');
+  return new $String().pattern(patterns.email, 'email');
 }
 
 /**
@@ -235,7 +235,7 @@ export function email(): $Refined<string, string> {
  * });
  */
 export function uuid(): $Refined<string, string> {
-  return new $String().pattern($.patterns.uuid, 'UUID');
+  return new $String().pattern(patterns.uuid, 'UUID');
 }
 
 /**
