@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { type JSONSchema7 } from 'json-schema';
 import {
   Decoder,
@@ -6,35 +5,33 @@ import {
   type InferDecoderResult,
   Ok,
   type Result,
-} from './common/index.js';
+} from '../common/index.js';
 import { type $Enum } from './enum.js';
+import { type $String, string } from './string';
 
 // Explicitly separated, as this would otherwise cause a type error with inner-defined types
 type IndexableDecoder =
   | Decoder<string>
   | Decoder<number>
   | Decoder<symbol>
-  | $Enum<any>;
-
-type __ProcessedRecord<
-  TKeyDecoder extends IndexableDecoder,
-  TValueDecoder extends Decoder<InferDecoderResult<TValueDecoder>>,
-> = Record<InferDecoderResult<TKeyDecoder>, InferDecoderResult<TValueDecoder>>;
+  | $Enum<string>;
 
 export class $Record<
   TKeyDecoder extends IndexableDecoder,
   TValueDecoder extends Decoder<InferDecoderResult<TValueDecoder>>,
-> extends Decoder<__ProcessedRecord<TKeyDecoder, TValueDecoder>> {
+> extends Decoder<
+  Record<InferDecoderResult<TKeyDecoder>, InferDecoderResult<TValueDecoder>>
+> {
   constructor(
     private readonly keyDecoder: TKeyDecoder,
-    private readonly valueDecoder: Decoder<InferDecoderResult<TValueDecoder>>
+    private readonly valueDecoder: TValueDecoder
   ) {
     super('record');
   }
 
-  protected override parseInternal(
-    input: unknown
-  ): Result<__ProcessedRecord<TKeyDecoder, TValueDecoder>> {
+  protected override parseInternal(input: unknown): Result<{
+    [K in InferDecoderResult<TKeyDecoder>]: InferDecoderResult<TValueDecoder>;
+  }> {
     // Some edge case handling before we can start processing
     if (!input) {
       return Err('Record cannot be undefined');
@@ -60,10 +57,9 @@ export class $Record<
       return Err('Record cannot be an error object.');
     }
 
-    const result = {} as Record<
-      InferDecoderResult<TKeyDecoder>,
-      InferDecoderResult<TValueDecoder>
-    >;
+    const result = {} as {
+      [K in InferDecoderResult<TKeyDecoder>]: InferDecoderResult<TValueDecoder>;
+    };
 
     for (const [unsafeKey, value] of Object.entries(input)) {
       const keyResult = this.extractKey(unsafeKey);
@@ -171,4 +167,87 @@ export function record<
   input: TFieldsDecoder
 ): $Record<TKeyDecoder, TFieldsDecoder> {
   return new $Record<TKeyDecoder, TFieldsDecoder>(keyDecoder, input);
+}
+
+/**
+ * Creates a decoder for dictionary objects with string keys and validated values.
+ *
+ * The `dictionary` function is a convenience wrapper around `record` that specifically handles
+ * objects with string keys. It's ideal for working with plain JavaScript objects used as maps
+ * or dictionaries where you need to validate the values but don't need to restrict or validate
+ * the keys beyond them being strings.
+ *
+ * @template TFieldsDecoder - A decoder type for validating the values in the dictionary
+ *
+ * @param {TFieldsDecoder} input - A decoder that validates the values associated with each key.
+ *   Can be any decoder type (primitives, objects, arrays, unions, etc.) depending on the
+ *   expected value structure.
+ *
+ * @returns {$Record<$String, TFieldsDecoder>} A decoder instance that validates dictionary objects
+ *   and produces a typed Record with string keys and values of type `InferDecoderResult<TFieldsDecoder>`.
+ *
+ * @remarks
+ * This is equivalent to calling `record(string(), input)` but provides a more convenient API
+ * when you know all keys will be strings (the most common use case for JavaScript objects).
+ *
+ * The decoder will reject:
+ * - Non-object values (undefined, null, primitives, arrays)
+ * - Special object types (RegExp, Date, Error instances)
+ * - Objects where any value fails value decoder validation
+ *
+ * All values from the input object are validated using the provided decoder. If any value
+ * fails validation, the entire dictionary validation fails with a descriptive error message.
+ *
+ * @example
+ * ```typescript
+ * import { dictionary, number, string, object } from 'object-decoder';
+ *
+ * // Simple dictionary with number values
+ * const userAgesDecoder = dictionary(number());
+ * const ages = userAgesDecoder.parse({
+ *   alice: 25,
+ *   bob: 30,
+ *   charlie: 28
+ * });
+ * // ages type: Record<string, number>
+ * // ages value: { alice: 25, bob: 30, charlie: 28 }
+ *
+ * // Dictionary with complex object values
+ * const userProfilesDecoder = dictionary(object({
+ *   name: string(),
+ *   age: number(),
+ *   email: string()
+ * }));
+ *
+ * const profiles = userProfilesDecoder.parse({
+ *   user1: { name: "Alice", age: 25, email: "alice@example.com" },
+ *   user2: { name: "Bob", age: 30, email: "bob@example.com" }
+ * });
+ * // profiles type: Record<string, { name: string; age: number; email: string }>
+ *
+ * // Safe parsing with error handling
+ * const result = userAgesDecoder.safeParse({
+ *   alice: 25,
+ *   bob: "thirty" // Invalid: not a number
+ * });
+ *
+ * if (!result.success) {
+ *   console.error(result.error);
+ *   // Error: Failed to decode record value for key 'bob' -> Expected number, got string
+ * }
+ *
+ * // Using with configuration objects
+ * const configDecoder = dictionary(string());
+ * const config = configDecoder.parse({
+ *   apiUrl: "https://api.example.com",
+ *   timeout: "5000",
+ *   debug: "true"
+ * });
+ * // All values validated as strings
+ * ```
+ */
+export function dictionary<
+  TFieldsDecoder extends Decoder<InferDecoderResult<TFieldsDecoder>>,
+>(input: TFieldsDecoder): $Record<$String, TFieldsDecoder> {
+  return new $Record<$String, TFieldsDecoder>(string(), input);
 }

@@ -1,5 +1,5 @@
 import { type JSONSchema7 } from 'json-schema';
-import { Decoder, Err, Ok, type Result } from './common/index.js';
+import { Decoder, Err, Ok, type Result } from '../common/index.js';
 
 type StringEnum = Record<string, string>;
 

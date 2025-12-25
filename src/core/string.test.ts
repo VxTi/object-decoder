@@ -11,16 +11,16 @@ describe('string', () => {
   });
 
   it('should throw an error if the input string does not match the pattern', () => {
-    const model = string({ pattern: /^[a-zA-Z0-9]+$/ });
+    const model = string().pattern(/^[a-zA-Z0-9]+$/);
     expect(() => model.parse('test 123')).toThrowErrorMatchingInlineSnapshot(
-      `[Error: Input string does not match pattern, got "test 123"]`
+      `[Error: Input string does not match pattern]`
     );
   });
 
   it('should throw an error if the input string does not conform to the minimum length', () => {
-    const model = string({ minLength: 5 });
+    const model = string().min(5);
     expect(() => model.parse('test')).toThrowErrorMatchingInlineSnapshot(
-      `[Error: Input string is shorter than minimum length 5, got "test"]`
+      `[Error: Input string must be at least 5 characters long]`
     );
   });
 
@@ -69,7 +69,7 @@ describe('string', () => {
     expect(() =>
       model.parse('invalid-uuid')
     ).toThrowErrorMatchingInlineSnapshot(
-      `[Error: Input string does not match pattern "UUID", got "invalid-uuid"]`
+      `[Error: Input string does not match pattern "UUID"]`
     );
   });
 
@@ -80,7 +80,7 @@ describe('string', () => {
     expect(() =>
       model.parse('invalid-email')
     ).toThrowErrorMatchingInlineSnapshot(
-      `[Error: Input string does not match pattern "email", got "invalid-email"]`
+      `[Error: Input string does not match pattern "email"]`
     );
   });
 });

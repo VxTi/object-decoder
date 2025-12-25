@@ -1,6 +1,6 @@
 import { describe, bench } from 'vitest';
+import { type $Infer } from '../common/index.js';
 import { array } from './array';
-import { type $Infer } from './common/index.js';
 import { literal } from './literal';
 import { number } from './number';
 import { object } from './object';

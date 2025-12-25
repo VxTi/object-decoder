@@ -7,5 +7,5 @@ export * from './object.js';
 export * from './optional.js';
 export * from './record.js';
 export * from './string.js';
-export * from './common/index.js';
+export * from '../common/index.js';
 export * from './union.js';

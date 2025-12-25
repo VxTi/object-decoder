@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { type JSONSchema7 } from 'json-schema';
+import { Decoder, type $Infer, type Result, Err, Ok } from '../common/index.js';
 import { type Prettify } from '../types.d.js';
-import { Decoder, type $Infer, type Result, Err, Ok } from './common/index.js';
 import { $Optional } from './optional.js';
 
 export interface ObjectDecoderOptions {
@@ -15,13 +15,9 @@ type ObjectLike = Record<string, any>;
 
 export type $ObjectFields = Record<string, Decoder<any>>;
 
-type __Infer<TFieldDecoders extends $ObjectFields> = Prettify<{
-  [K in keyof TFieldDecoders]: $Infer<TFieldDecoders[K]>;
-}>;
-
-export class $Object<TFieldDecoders extends $ObjectFields> extends Decoder<
-  __Infer<TFieldDecoders>
-> {
+export class $Object<TFieldDecoders extends $ObjectFields> extends Decoder<{
+  [K in keyof TFieldDecoders]: $Infer<TFieldDecoders[K]> & {};
+}> {
   constructor(
     protected readonly fieldDecoders: TFieldDecoders,
     protected readonly options?: ObjectDecoderOptions
@@ -29,7 +25,9 @@ export class $Object<TFieldDecoders extends $ObjectFields> extends Decoder<
     super('object');
   }
 
-  protected parseInternal(input: unknown): Result<__Infer<TFieldDecoders>> {
+  protected parseInternal(
+    input: unknown
+  ): Result<{ [K in keyof TFieldDecoders]: $Infer<TFieldDecoders[K]> & {} }> {
     const extractionResult = this.extractObject(input);
 
     if (!extractionResult.success) {
@@ -65,7 +63,9 @@ export class $Object<TFieldDecoders extends $ObjectFields> extends Decoder<
       }
     }
 
-    return Ok(result as __Infer<TFieldDecoders>);
+    return Ok(
+      result as { [K in keyof TFieldDecoders]: $Infer<TFieldDecoders[K]> & {} }
+    );
   }
 
   private extractObject(input: unknown): Result<ObjectLike> {

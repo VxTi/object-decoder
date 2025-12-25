@@ -1,5 +1,5 @@
 import type { JSONSchema7 } from 'json-schema';
-import { Decoder, Err, Ok, type Result } from './common/index.js';
+import { Decoder, Err, Ok, type Result } from '../common/index.js';
 
 export class $Literal<TLiteral extends string> extends Decoder<TLiteral> {
   constructor(readonly value: TLiteral) {
