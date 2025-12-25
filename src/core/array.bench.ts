@@ -61,7 +61,7 @@ describe('array decoding performance', () => {
     objectArrayModel.parse(smallObjectArray);
   });
 
-  const largeObjectArray = Array.from({ length: 100 }, (_, i) => ({
+  const largeObjectArray = Array.from({ length: 1000 }, (_, i) => ({
     id: i,
     name: `User${i}`,
     email: `user${i}@example.com`,
