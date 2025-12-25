@@ -1,11 +1,11 @@
 import { describe, bench } from 'vitest';
 import { type $Infer } from '../common/index.js';
-import { array } from './array';
-import { literal } from './literal';
-import { number } from './number';
-import { object } from './object';
-import { optional } from './optional';
-import { string } from './string';
+import { array } from './array.js';
+import { literal } from './literal.js';
+import { number } from './number.js';
+import { object } from './object.js';
+import { optional } from './optional.js';
+import { string } from './string.js';
 
 describe('object decoding performance', () => {
   const image = object({

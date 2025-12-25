@@ -1,10 +1,10 @@
 import { bench, describe } from 'vitest';
-import { boolean } from './boolean';
-import { enumerate } from './enum';
-import { number } from './number';
-import { object } from './object';
-import { record } from './record';
-import { string } from './string';
+import { boolean } from './boolean.js';
+import { enumerate } from './enum.js';
+import { number } from './number.js';
+import { object } from './object.js';
+import { record } from './record.js';
+import { string } from './string.js';
 
 describe('record decoding performance', () => {
   // Simple string key with simple object values

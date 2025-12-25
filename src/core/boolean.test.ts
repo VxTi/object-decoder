@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { boolean } from './boolean';
+import { boolean } from './boolean.js';
 
 describe('boolean', () => {
   const model = boolean();

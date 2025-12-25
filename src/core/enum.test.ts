@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { enumerate } from './enum';
+import { enumerate } from './enum.js';
 
 enum SimpleEnum {
   A = 'A',

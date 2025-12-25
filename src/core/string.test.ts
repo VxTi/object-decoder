@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { date, email, string, uuid } from './string';
+import { date, email, string, uuid } from './string.js';
 
 describe('string', () => {
   it('should parse a regular string properly', () => {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { number } from './number';
-import { string } from './string';
-import { union } from './union';
+import { number } from './number.js';
+import { string } from './string.js';
+import { union } from './union.js';
 
 describe('union parsing', () => {
   it('should parse unions correctly', () => {

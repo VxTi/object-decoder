@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "skipLibCheck": true,
-    "module": "ESNext",
-    "moduleResolution": "bundler",
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
     "target": "esnext",
     "isolatedModules": true,
     "esModuleInterop": true,
@@ -22,7 +22,8 @@
     "moduleDetection": "force",
     "noImplicitOverride": true,
     "sourceRoot": "./src",
-    "inlineSourceMap": true
+    "inlineSourceMap": true,
+    "resolveJsonModule": true
   },
   "include": ["src/**/*"],
   "exclude": ["dist", "node_modules"]

@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { type ErrorResult } from '../common/index.js';
-import { boolean } from './boolean';
-import { enumerate } from './enum';
-import { number } from './number';
-import { object } from './object';
-import { record } from './record';
-import { string } from './string';
+import { boolean } from './boolean.js';
+import { enumerate } from './enum.js';
+import { number } from './number.js';
+import { object } from './object.js';
+import { record } from './record.js';
+import { string } from './string.js';
 
 describe('record', () => {
   it('should parse a record with string values correctly', () => {

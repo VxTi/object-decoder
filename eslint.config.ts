@@ -3,7 +3,7 @@ import importPlugin from 'eslint-plugin-import';
 import prettierPlugin from 'eslint-plugin-prettier';
 import unusedImports from 'eslint-plugin-unused-imports';
 import tseslint from 'typescript-eslint';
-import prettierConfig from './prettier.config';
+import prettierConfig from './prettier.config.js';
 
 const cwd = process.cwd();
 
@@ -41,7 +41,6 @@ export default defineConfig([
           ignoreRestSiblings: true,
         },
       ],
-      'import/no-cycle': 'error',
       'arrow-body-style': 0,
       'prefer-arrow-callback': 0,
       'prefer-template': 2,
@@ -58,9 +57,18 @@ export default defineConfig([
           checksSpreads: true,
         },
       ],
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        {
+          fixStyle: 'inline-type-imports',
+          prefer: 'type-imports',
+          disallowTypeAnnotations: false,
+        },
+      ],
       '@typescript-eslint/consistent-type-assertions': 'error',
       'no-duplicate-imports': 2,
 
+      'import/no-cycle': 2,
       'import/export': 2, // No re-exporting the same name
       'import/no-mutable-exports': 2, // Disallow the export of non-constants
       'import/no-self-import': 2, // Prevent a module from importing itself
@@ -77,13 +85,12 @@ export default defineConfig([
           },
         },
       ],
-
-      '@typescript-eslint/consistent-type-imports': [
+      'import/extensions': [
         'error',
+        'ignorePackages',
         {
-          fixStyle: 'inline-type-imports',
-          prefer: 'type-imports',
-          disallowTypeAnnotations: false,
+          js: 'always',
+          ts: 'never',
         },
       ],
     },

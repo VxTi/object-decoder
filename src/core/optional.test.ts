@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { optional } from './optional';
-import { string } from './string';
+import { optional } from './optional.js';
+import { string } from './string.js';
 
 describe('optional', () => {
   it('should parse optionals correctly', () => {

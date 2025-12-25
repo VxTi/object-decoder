@@ -1,8 +1,8 @@
 import { bench, describe } from 'vitest';
-import { array } from './array';
-import { number } from './number';
-import { object } from './object';
-import { string } from './string';
+import { array } from './array.js';
+import { number } from './number.js';
+import { object } from './object.js';
+import { string } from './string.js';
 
 describe('array decoding performance', () => {
   const numberArrayModel = array(number());

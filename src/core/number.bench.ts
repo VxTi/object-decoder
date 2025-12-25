@@ -1,5 +1,5 @@
 import { bench, describe } from 'vitest';
-import { number } from './number';
+import { number } from './number.js';
 
 describe('number decoding performance', () => {
   const model = number();

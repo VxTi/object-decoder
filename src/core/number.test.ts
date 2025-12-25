@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { int, number } from './number';
+import { int, number } from './number.js';
 
 describe('number', () => {
   it('should parse a regular number properly', () => {
