@@ -1,5 +1,7 @@
 # object-decoder
 
+[![Version](https://badge.fury.io/gh/VxTi%2Fobject-decoder.svg)](https://badge.fury.io/gh/VxTi%2Fobject-decoder)
+
 A lightweight, type-safe schema validation and parsing library for TypeScript.
 
 ## Installation

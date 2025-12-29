@@ -47,37 +47,24 @@ describe('object decoding performance', () => {
       },
     ]);
 
-    const input = Array.from({ length: 134000 }, () => ({
-      a: '1',
-      b: '1',
-      c: '',
-      d: '1',
-      e: '1',
-    }));
+    describe('incomplete data', () => {
+      const input = Array.from({ length: 134000 }, () => ({
+        a: '1',
+        b: '1',
+        c: '',
+        d: '1',
+        e: '1',
+      }));
 
-    bench(
-      'object-validator',
-      () => {
-        schema.safeParse(input);
-      },
-      options
-    );
-
-    bench(
-      'zod',
-      () => {
-        zodSchema.safeParse(input);
-      },
-      options
-    );
-
-    bench(
-      'arktype',
-      () => {
-        arkTypeSchema(input);
-      },
-      options
-    );
+      benchSeveral(
+        [
+          ['object-decoder', () => schema.safeParse(input)],
+          ['zod', () => zodSchema.safeParse(input)],
+          ['arktype', arkTypeSchema],
+        ],
+        input
+      );
+    });
   });
 
   describe('semi-large objects', () => {
@@ -154,55 +141,26 @@ describe('object decoding performance', () => {
     };
 
     describe('complete fields', () => {
-      bench(
-        'object-decoder',
-        () => {
-          schema.safeParse(baseInput);
-        },
-        options
-      );
-
-      bench(
-        'zod',
-        () => {
-          zodSchema.safeParse(baseInput);
-        },
-        options
-      );
-
-      bench(
-        'arktype',
-        () => {
-          arkTypeSchema(baseInput);
-        },
-        options
+      benchSeveral(
+        [
+          ['object-decoder', () => schema.safeParse(baseInput)],
+          ['zod', () => zodSchema.safeParse(baseInput)],
+          ['arktype', arkTypeSchema],
+        ],
+        baseInput
       );
     });
 
     describe('incomplete fields', () => {
       const input = { ...baseInput, maybe: 10 };
-      bench(
-        'object-decoder',
-        () => {
-          schema.safeParse(input);
-        },
-        options
-      );
 
-      bench(
-        'zod',
-        () => {
-          zodSchema.safeParse(input);
-        },
-        options
-      );
-
-      bench(
-        'arktype',
-        () => {
-          arkTypeSchema(input);
-        },
-        options
+      benchSeveral(
+        [
+          ['object-decoder', () => schema.safeParse(input)],
+          ['zod', () => zodSchema.safeParse(input)],
+          ['arktype', arkTypeSchema],
+        ],
+        input
       );
     });
   });
@@ -213,25 +171,14 @@ describe('object decoding performance', () => {
     const arkTypeSchema = type({});
     const input = {};
 
-    bench(
-      'object-decoder',
-      () => {
-        emptySchema.parse(input);
-      },
-      options
+    benchSeveral(
+      [
+        ['object-decoder', () => emptySchema.parse(input)],
+        ['zod', () => emptyZodSchema.parse(input)],
+        ['arktype', arkTypeSchema],
+      ],
+      input
     );
-
-    bench(
-      'zod',
-      () => {
-        emptyZodSchema.parse(input);
-      },
-      options
-    );
-
-    bench('arktype', () => {
-      arkTypeSchema(input);
-    });
   });
 
   describe('simple schemas', () => {
@@ -241,24 +188,28 @@ describe('object decoding performance', () => {
 
     const input = { type: 'COMPONENT' };
 
-    bench(
-      'object-decoder',
-      () => {
-        simpleSchema.parse(input);
-      },
-      options
+    benchSeveral(
+      [
+        ['object-decoder', () => simpleSchema.parse(input)],
+        ['zod', () => simpleZodSchema.parse(input)],
+        ['arktype', arkTypeSchema],
+      ],
+      input
     );
-
-    bench(
-      'zod',
-      () => {
-        simpleZodSchema.parse(input);
-      },
-      options
-    );
-
-    bench('arktype', () => {
-      arkTypeSchema(input);
-    });
   });
 });
+
+function benchSeveral(
+  validators: [string, (input: unknown) => unknown][],
+  input: unknown
+): void {
+  validators.forEach(([name, validator]) => {
+    bench(
+      name,
+      () => {
+        validator(input);
+      },
+      options
+    );
+  });
+}

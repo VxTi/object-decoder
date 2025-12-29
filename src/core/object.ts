@@ -84,6 +84,9 @@ export class $Object<TFieldDecoders extends $ObjectFields> extends Decoder<
     return Ok(result as __Infer<TFieldDecoders>);
   }
 
+  /**
+   * Will attempt to extract an object from the input
+   */
   private extractObject(input: unknown): Result<ObjectLike> {
     if (!input) {
       return Err(`Expected object, got ${typeof input}`);
