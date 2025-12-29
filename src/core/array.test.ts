@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { array } from './array.js';
-import { number } from './number.js';
-import { optional } from './optional.js';
+import { array } from './array.ts';
+import { number } from './number.ts';
+import { optional } from './optional.ts';
 
 describe('array decoding', () => {
   it('should parse a numerical array properly', () => {

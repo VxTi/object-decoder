@@ -4,7 +4,7 @@ import {
   Err,
   type InferDecoderResult,
   type Result,
-} from '../common/index.js';
+} from '../common/index.ts';
 
 export class $Union<
   TDecoders extends Decoder<InferDecoderResult<TDecoders>>,

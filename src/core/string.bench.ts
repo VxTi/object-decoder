@@ -1,5 +1,5 @@
 import { bench, describe } from 'vitest';
-import { date, email, string, uuid } from './string.js';
+import { date, email, string, uuid } from './string.ts';
 
 describe('string decoding performance', () => {
   const regularModel = string();

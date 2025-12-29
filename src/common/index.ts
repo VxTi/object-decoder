@@ -1,4 +1,5 @@
-export * from './decoder.js';
-export * from './inference.js';
-export * from './result.js';
-export * as patterns from './patterns.js';
+export * from './decoder.ts';
+export * from './inference.ts';
+export * from './result.ts';
+export * as patterns from './patterns.ts';
+export * from './util.ts';

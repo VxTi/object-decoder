@@ -3,7 +3,7 @@ import importPlugin from 'eslint-plugin-import';
 import prettierPlugin from 'eslint-plugin-prettier';
 import unusedImports from 'eslint-plugin-unused-imports';
 import tseslint from 'typescript-eslint';
-import prettierConfig from './prettier.config.js';
+import prettierConfig from './prettier.config.ts';
 
 const cwd = process.cwd();
 

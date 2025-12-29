@@ -5,7 +5,7 @@ import {
   Ok,
   type InferDecoderResult,
   type Result,
-} from '../common/index.js';
+} from '../common/index.ts';
 
 export class $Array<
   TDecoder extends Decoder<InferDecoderResult<TDecoder>>,
@@ -23,15 +23,22 @@ export class $Array<
       return arrayResult;
     }
 
-    const output: InferDecoderResult<TDecoder>[] = [];
+    const arr = arrayResult.value;
 
-    for (const [i, value] of arrayResult.value.entries()) {
+    if (!arr.length) {
+      return Ok([]);
+    }
+
+    const entries = arr.entries();
+    const output = new Array<InferDecoderResult<TDecoder>>(arr.length);
+
+    for (const [i, value] of entries) {
       const result = this.decoder.safeParse(value);
       if (!result.success) {
         return Err(`array [${i}] -> ${result.error}`);
       }
 
-      output.push(result.value);
+      output[i] = result.value;
     }
 
     return Ok(output);
@@ -42,16 +49,11 @@ export class $Array<
       return Ok(input);
     }
 
-    if (typeof input !== 'string') {
-      return Err(`Expected array-like string, got ${typeof input}`);
-    }
-    const arrayExtractionResult: Result<unknown[]> = this.tryParseJson(input);
-
-    if (!arrayExtractionResult.success) {
-      return arrayExtractionResult;
+    if (typeof input === 'string') {
+      return this.tryParseJson(input);
     }
 
-    return Ok(arrayExtractionResult.value);
+    return Err(`Expected array-like string, got ${typeof input}`);
   }
 
   private tryParseJson(input: string): Result<unknown[]> {

@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { literal } from './literal.js';
-import { number } from './number.js';
-import { object } from './object.js';
-import { optional } from './optional.js';
-import { string } from './string.js';
-import { union } from './union.js';
+import { literal } from './literal.ts';
+import { number } from './number.ts';
+import { object } from './object.ts';
+import { optional } from './optional.ts';
+import { string } from './string.ts';
+import { union } from './union.ts';
 
 describe('object', () => {
   it('should parse objects correctly', () => {

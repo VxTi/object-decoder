@@ -5,9 +5,9 @@ import {
   type InferDecoderResult,
   Ok,
   type Result,
-} from '../common/index.js';
-import { type $Enum } from './enum.js';
-import { type $String, string } from './string.js';
+} from '../common/index.ts';
+import { type $Enum } from './enum.ts';
+import { type $String, string } from './string.ts';
 
 // Explicitly separated, as this would otherwise cause a type error with inner-defined types
 type IndexableDecoder =

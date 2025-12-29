@@ -1,9 +1,9 @@
 import { bench, describe } from 'vitest';
-import { boolean } from './boolean.js';
-import { number } from './number.js';
-import { object } from './object.js';
-import { string } from './string.js';
-import { union } from './union.js';
+import { boolean } from './boolean.ts';
+import { number } from './number.ts';
+import { object } from './object.ts';
+import { string } from './string.ts';
+import { union } from './union.ts';
 
 const schema = union([number(), string(), boolean()]);
 const objectSchema = union([

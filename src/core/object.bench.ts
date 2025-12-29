@@ -1,34 +1,141 @@
+import { type } from 'arktype';
 import { describe, bench } from 'vitest';
-import { type $Infer } from '../common/index.js';
-import { array } from './array.js';
-import { literal } from './literal.js';
-import { number } from './number.js';
-import { object } from './object.js';
-import { optional } from './optional.js';
-import { string } from './string.js';
+import { z } from 'zod';
+import { array } from './array.ts';
+import { literal } from './literal.ts';
+import { number } from './number.ts';
+import { object } from './object.ts';
+import { optional } from './optional.ts';
+import { string } from './string.ts';
+
+const options = {
+  throws: true,
+  warmupTime: 200,
+  time: 1000,
+  // iterations: 1000000,
+};
 
 describe('object decoding performance', () => {
-  const image = object({
-    url: string({ pattern: /^https?:\/\/\S+$/ }),
-  });
-  const schema = object({
-    type: literal('COMPONENT'),
-    firstField: string({ pattern: /test/ }),
-    maybe: optional(string()),
-    nested: object({
-      test: string(),
-    }),
-    somethingElse: number(),
-    cars: array(
+  describe('large objects', () => {
+    const schema = array(
       object({
-        name: string(),
-        image,
+        a: string().nonEmpty(),
+        b: string().nonEmpty(),
+        c: string().nonEmpty(),
+        d: string().nonEmpty(),
+        e: string().nonEmpty(),
       })
-    ),
+    );
+
+    const zodSchema = z.array(
+      z.object({
+        a: z.string().nonempty(),
+        b: z.string().nonempty(),
+        c: z.string().nonempty(),
+        d: z.string().nonempty(),
+        e: z.string().nonempty(),
+      })
+    );
+
+    const arkTypeSchema = type([
+      {
+        a: 'string > 0',
+        b: 'string > 0',
+        c: 'string > 0',
+        d: 'string > 0',
+        e: 'string > 0',
+      },
+    ]);
+
+    const input = Array.from({ length: 134000 }, () => ({
+      a: '1',
+      b: '1',
+      c: '',
+      d: '1',
+      e: '1',
+    }));
+
+    bench(
+      'object-validator',
+      () => {
+        schema.safeParse(input);
+      },
+      options
+    );
+
+    bench(
+      'zod',
+      () => {
+        zodSchema.safeParse(input);
+      },
+      options
+    );
+
+    bench(
+      'arktype',
+      () => {
+        arkTypeSchema(input);
+      },
+      options
+    );
   });
 
-  bench('semi-large schemas', () => {
-    const input: $Infer<typeof schema> = {
+  describe('semi-large objects', () => {
+    const schema = object({
+      type: literal('COMPONENT'),
+      firstField: string({ pattern: /test/ }),
+      maybe: optional(string()),
+      nested: object({
+        test: string(),
+      }),
+      somethingElse: number(),
+      cars: array(
+        object({
+          name: string(),
+          image: object({
+            url: string().pattern(/^https?:\/\/\S+$/),
+          }),
+        })
+      ),
+    });
+
+    const zodSchema = z.object({
+      type: z.literal('COMPONENT'),
+      firstField: z.string().regex(/test/),
+      maybe: z.optional(z.string()),
+      nested: z.object({
+        test: z.string(),
+      }),
+      somethingElse: z.number(),
+      cars: z.array(
+        z.object({
+          name: z.string(),
+          image: z.object({
+            url: z.string().regex(/^https?:\/\/\S+$/),
+          }),
+        })
+      ),
+    });
+
+    const arkTypeSchema = type({
+      type: "'COMPONENT'",
+      firstField: /test/,
+      'maybe?': 'string',
+      nested: {
+        test: 'string',
+      },
+      somethingElse: 'number',
+      cars: [
+        {
+          name: 'string',
+          image: {
+            url: 'string',
+          },
+        },
+      ],
+    });
+
+    const baseInput = {
       type: 'COMPONENT',
       firstField: 'test',
       maybe: 'hello!',
@@ -46,20 +153,112 @@ describe('object decoding performance', () => {
       ],
     };
 
-    schema.parse(input);
+    describe('complete fields', () => {
+      bench(
+        'object-decoder',
+        () => {
+          schema.safeParse(baseInput);
+        },
+        options
+      );
+
+      bench(
+        'zod',
+        () => {
+          zodSchema.safeParse(baseInput);
+        },
+        options
+      );
+
+      bench(
+        'arktype',
+        () => {
+          arkTypeSchema(baseInput);
+        },
+        options
+      );
+    });
+
+    describe('incomplete fields', () => {
+      const input = { ...baseInput, maybe: 10 };
+      bench(
+        'object-decoder',
+        () => {
+          schema.safeParse(input);
+        },
+        options
+      );
+
+      bench(
+        'zod',
+        () => {
+          zodSchema.safeParse(input);
+        },
+        options
+      );
+
+      bench(
+        'arktype',
+        () => {
+          arkTypeSchema(input);
+        },
+        options
+      );
+    });
   });
 
-  const emptySchema = object({});
-  bench('empty schemas', () => {
-    emptySchema.parse({});
+  describe('empty schemas', () => {
+    const emptySchema = object({});
+    const emptyZodSchema = z.object({});
+    const arkTypeSchema = type({});
+    const input = {};
+
+    bench(
+      'object-decoder',
+      () => {
+        emptySchema.parse(input);
+      },
+      options
+    );
+
+    bench(
+      'zod',
+      () => {
+        emptyZodSchema.parse(input);
+      },
+      options
+    );
+
+    bench('arktype', () => {
+      arkTypeSchema(input);
+    });
   });
 
-  const simpleSchema = object({ type: literal('COMPONENT') });
-  bench('simple schemas', () => {
-    const input: $Infer<typeof simpleSchema> = {
-      type: 'COMPONENT',
-    };
+  describe('simple schemas', () => {
+    const simpleSchema = object({ type: literal('COMPONENT') });
+    const simpleZodSchema = z.object({ type: z.literal('COMPONENT') });
+    const arkTypeSchema = type({ type: "'COMPONENT'" });
 
-    simpleSchema.parse(input);
+    const input = { type: 'COMPONENT' };
+
+    bench(
+      'object-decoder',
+      () => {
+        simpleSchema.parse(input);
+      },
+      options
+    );
+
+    bench(
+      'zod',
+      () => {
+        simpleZodSchema.parse(input);
+      },
+      options
+    );
+
+    bench('arktype', () => {
+      arkTypeSchema(input);
+    });
   });
 });

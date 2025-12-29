@@ -6,7 +6,7 @@ import {
   type Result,
   type $Refined,
   patterns,
-} from '../common/index.js';
+} from '../common/index.ts';
 
 export interface StringDecoderOptions {
   /**
@@ -76,6 +76,10 @@ export class $String extends Decoder<string> {
     return new $String({ maxLength }).refine($in => $in.length <= maxLength, {
       error: `Input string must be at most ${maxLength} characters long`,
     });
+  }
+
+  public nonEmpty(): $Refined<string, string> {
+    return this.min(1);
   }
 
   /**

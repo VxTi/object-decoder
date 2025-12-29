@@ -1,5 +1,5 @@
 import type { JSONSchema7 } from 'json-schema';
-import { Decoder, Err, Ok, type Result } from '../common/index.js';
+import { Decoder, Err, Ok, type Result } from '../common/index.ts';
 
 export class $Literal<TLiteral extends string> extends Decoder<TLiteral> {
   constructor(readonly value: TLiteral) {
@@ -7,17 +7,16 @@ export class $Literal<TLiteral extends string> extends Decoder<TLiteral> {
   }
 
   protected parseInternal(input: unknown): Result<TLiteral> {
-    if (typeof input !== 'string') {
+    if (typeof input === 'string') {
+      if (input === this.value) {
+        return Ok(input as TLiteral);
+      }
       return Err(`Expected string, got ${typeof input}`);
     }
 
-    if (input !== this.value) {
-      return Err(
-        `Input string does not match literal value "${this.value}", got "${input}"`
-      );
-    }
-
-    return Ok(input as TLiteral);
+    return Err(
+      `Input string does not match literal value "${this.value}", got "${input}"`
+    );
   }
 
   public toString(): string {

@@ -23,7 +23,8 @@
     "noImplicitOverride": true,
     "sourceRoot": "./src",
     "inlineSourceMap": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": true
   },
   "include": ["src/**/*"],
   "exclude": ["dist", "node_modules"]

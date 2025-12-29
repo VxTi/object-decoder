@@ -1,8 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { type JSONSchema7 } from 'json-schema';
-import { Decoder, type $Infer, type Result, Err, Ok } from '../common/index.js';
-import { type Prettify } from '../types.d.js';
-import { $Optional } from './optional.js';
+import {
+  Decoder,
+  type $Infer,
+  type Result,
+  Err,
+  Ok,
+  isNil,
+} from '../common/index.ts';
+import type { Prettify } from '../types.d.ts';
+import { $Optional } from './optional.ts';
 
 export interface ObjectDecoderOptions {
   /**
@@ -15,36 +22,47 @@ type ObjectLike = Record<string, any>;
 
 export type $ObjectFields = Record<string, Decoder<any>>;
 
-export class $Object<TFieldDecoders extends $ObjectFields> extends Decoder<{
+type __Infer<TFieldDecoders extends $ObjectFields> = {
   [K in keyof TFieldDecoders]: $Infer<TFieldDecoders[K]> & {};
-}> {
+};
+
+export class $Object<TFieldDecoders extends $ObjectFields> extends Decoder<
+  __Infer<TFieldDecoders>
+> {
+  private readonly entries: [string, Decoder<any>][];
+  private readonly keys: Set<string>;
+
   constructor(
     protected readonly fieldDecoders: TFieldDecoders,
     protected readonly options?: ObjectDecoderOptions
   ) {
     super('object');
+    this.entries = Object.entries(fieldDecoders);
+    this.keys = new Set(Object.keys(fieldDecoders));
   }
 
-  protected parseInternal(
-    input: unknown
-  ): Result<{ [K in keyof TFieldDecoders]: $Infer<TFieldDecoders[K]> & {} }> {
+  protected parseInternal(input: unknown): Result<__Infer<TFieldDecoders>> {
+    const result: ObjectLike = {};
+
+    if (this.keys.size === 0) {
+      return Ok(result as __Infer<TFieldDecoders>);
+    }
+
     const extractionResult = this.extractObject(input);
 
     if (!extractionResult.success) {
       return extractionResult;
     }
 
-    const result: ObjectLike = {};
+    for (const [key, validator] of this.entries) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const value = extractionResult.value[key];
 
-    for (const [key, validator] of Object.entries(this.fieldDecoders)) {
-      if (
-        !(key in extractionResult.value) &&
-        !(validator instanceof $Optional)
-      ) {
-        return Err(`"Missing required field: "${key}"`);
+      if (isNil(value) && !(validator instanceof $Optional)) {
+        return Err(`"Missing required field: ${key}`);
       }
 
-      const validatorResult = validator.safeParse(extractionResult.value[key]);
+      const validatorResult = validator.safeParse(value);
 
       if (!validatorResult.success) {
         return Err(`${key} -> ${validatorResult.error}`);
@@ -56,16 +74,14 @@ export class $Object<TFieldDecoders extends $ObjectFields> extends Decoder<{
 
     if (this.options?.disallowUnknownFields) {
       const unknownFields = Object.keys(extractionResult.value).filter(
-        k => !(k in this.fieldDecoders)
+        k => !this.keys.has(k)
       );
       if (unknownFields.length > 0) {
         return Err(`Unknown disallowed fields: "${unknownFields.join(', ')}"`);
       }
     }
 
-    return Ok(
-      result as { [K in keyof TFieldDecoders]: $Infer<TFieldDecoders[K]> & {} }
-    );
+    return Ok(result as __Infer<TFieldDecoders>);
   }
 
   private extractObject(input: unknown): Result<ObjectLike> {
@@ -73,28 +89,23 @@ export class $Object<TFieldDecoders extends $ObjectFields> extends Decoder<{
       return Err(`Expected object, got ${typeof input}`);
     }
     if (typeof input === 'object') {
-      if (Array.isArray(input)) {
-        return Err(`Array does not quality as valid object`);
-      }
-
-      if (input instanceof RegExp) {
-        return Err(`RegExp does not quality as valid object`);
-      }
-      if (input instanceof Date) {
-        return Err(`Date does not quality as valid object`);
-      }
-      if (input instanceof Set) {
-        return Err(`Set does not quality as valid object`);
-      }
-      if (input instanceof Map) {
-        return Err(`Map does not quality as valid object`);
+      if (
+        Array.isArray(input) ||
+        input instanceof RegExp ||
+        input instanceof Date ||
+        input instanceof Set ||
+        input instanceof Map
+      ) {
+        return Err(
+          `${input.constructor.name} does not quality as valid object`
+        );
       }
 
       return Ok(input as ObjectLike);
     }
 
     if (typeof input !== 'string') {
-      return Err(`Expected object with key, got ${typeof input}`);
+      return Err(`Expected string-like object, got ${typeof input}`);
     }
 
     try {

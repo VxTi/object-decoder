@@ -1,3 +1,3 @@
-import { type InferDecoderResult } from './decoder.js';
+import { type InferDecoderResult } from './decoder.ts';
 
 export type $Infer<TDecoder> = InferDecoderResult<TDecoder>;
