@@ -7,7 +7,7 @@ import {
   type Result,
 } from '../common/index.ts';
 import { type $Enum } from './enum.ts';
-import { type $String, string } from './string.ts';
+import { type $String } from './string.ts';
 
 // Explicitly separated, as this would otherwise cause a type error with inner-defined types
 type IndexableDecoder =
@@ -23,7 +23,7 @@ export class $Record<
   Record<InferDecoderResult<TKeyDecoder>, InferDecoderResult<TValueDecoder>>
 > {
   constructor(
-    private readonly keyDecoder: TKeyDecoder,
+    private readonly keyDecoder: TKeyDecoder | undefined,
     private readonly valueDecoder: TValueDecoder
   ) {
     super('record');
@@ -61,7 +61,9 @@ export class $Record<
       [K in InferDecoderResult<TKeyDecoder>]: InferDecoderResult<TValueDecoder>;
     };
 
-    for (const [unsafeKey, value] of Object.entries(input)) {
+    const entries = Object.entries(input);
+
+    for (const [unsafeKey, value] of entries) {
       const keyResult = this.extractKey(unsafeKey);
 
       if (!keyResult.success) return keyResult;
@@ -84,6 +86,12 @@ export class $Record<
   private extractKey(
     unsafeKey: string | number
   ): Result<InferDecoderResult<TKeyDecoder>> {
+    if (!this.keyDecoder) {
+      if (!unsafeKey) return Err(`Expected key, got undefined`);
+
+      return Ok(unsafeKey as InferDecoderResult<TKeyDecoder>);
+    }
+
     const keyResult = this.keyDecoder.safeParse(unsafeKey);
 
     if (!keyResult.success) {
@@ -102,7 +110,7 @@ export class $Record<
   }
 
   override toString(): string {
-    return `record [ ${this.keyDecoder.toString()}, ${this.valueDecoder.toString()} ]`;
+    return `record [ ${this.keyDecoder?.toString() ?? 'string'}, ${this.valueDecoder.toString()} ]`;
   }
 }
 
@@ -163,7 +171,7 @@ export function record<
   TKeyDecoder extends IndexableDecoder,
   TFieldsDecoder extends Decoder<InferDecoderResult<TFieldsDecoder>>,
 >(
-  keyDecoder: TKeyDecoder,
+  keyDecoder: TKeyDecoder | undefined,
   input: TFieldsDecoder
 ): $Record<TKeyDecoder, TFieldsDecoder> {
   return new $Record<TKeyDecoder, TFieldsDecoder>(keyDecoder, input);
@@ -249,5 +257,5 @@ export function record<
 export function dictionary<
   TFieldsDecoder extends Decoder<InferDecoderResult<TFieldsDecoder>>,
 >(input: TFieldsDecoder): $Record<$String, TFieldsDecoder> {
-  return new $Record<$String, TFieldsDecoder>(string(), input);
+  return new $Record<$String, TFieldsDecoder>(undefined, input);
 }

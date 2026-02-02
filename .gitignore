@@ -11,3 +11,5 @@ yarn-error.log*
 .vscode/*
 .eslintcache
 /dist
+.DS_Store
+.idea/.name
